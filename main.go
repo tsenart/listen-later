@@ -18,17 +18,14 @@ func init() {
 
 func main() {
 	queue := NewQueue()
-	pusher, err := NewPusher(*gcmKey)
-	if err != nil {
-		log.Fatal(err)
-	}
+	pusher := NewPusher(*gcmKey)
 
 	r := pat.New()
 	r.Get("/queue", QueueHandler(queue, pusher))
 	r.Post("/enqueue/{urn}", EnqueueHandler(queue, pusher))
 	r.Post("/dequeue", DequeueHandler(queue, pusher))
 
-	err = http.ListenAndServe(*listen, r)
+	err := http.ListenAndServe(*listen, r)
 	if err != nil {
 		log.Fatal(err)
 	}
