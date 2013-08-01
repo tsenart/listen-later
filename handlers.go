@@ -1,6 +1,7 @@
 package main
 
 import (
+	ws "code.google.com/p/go.net/websocket"
 	"encoding/json"
 	"errors"
 	"log"
@@ -8,12 +9,8 @@ import (
 	"strconv"
 )
 
-func QueueHandler(queue *Queue, pusher *Pusher) http.HandlerFunc {
+func QueueHandler(queue *Queue) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if deviceId := r.URL.Query().Get("device_id"); len(deviceId) > 0 {
-			pusher.Register(deviceId)
-			log.Printf("Registered device_id `%s`.\n", deviceId)
-		}
 		out, _ := json.Marshal(queue)
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Content-Length", strconv.Itoa(len(out)))
@@ -21,7 +18,7 @@ func QueueHandler(queue *Queue, pusher *Pusher) http.HandlerFunc {
 	}
 }
 
-func EnqueueHandler(queue *Queue, pusher *Pusher) http.HandlerFunc {
+func EnqueueHandler(queue *Queue, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		urn := r.URL.Query().Get(":urn")
 		if len(urn) == 0 {
@@ -32,31 +29,42 @@ func EnqueueHandler(queue *Queue, pusher *Pusher) http.HandlerFunc {
 		}
 
 		queue.Enqueue(urn)
-		pusher.Send(Event{"enqueue", urn})
-		log.Printf("Added %s to queue %v\n", urn, queue)
+		bus.Notify(Event{"enqueue", urn})
+		log.Printf("Added %s to queue %v", urn, queue)
 
-		QueueHandler(queue, pusher)(w, r)
+		QueueHandler(queue)(w, r)
 	}
 }
 
-func DequeueHandler(queue *Queue, pusher *Pusher) http.HandlerFunc {
+func DequeueHandler(queue *Queue, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if queue.Size() == 0 {
-			err := errors.New("Queue is empty.")
-			log.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
 		if urn, err := queue.Dequeue(); err != nil {
 			log.Println(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		} else {
-			pusher.Send(Event{"dequeue", urn})
-			log.Printf("Removed %s from queue %v\n", urn, queue)
+			bus.Notify(Event{"dequeue", urn})
+			log.Printf("Removed %s from queue %v", urn, queue)
 		}
 
-		QueueHandler(queue, pusher)(w, r)
+		QueueHandler(queue)(w, r)
 	}
+}
+
+func GCMSubscriptionHandler(pusher *GCMPusher) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if deviceId := r.URL.Query().Get("device_id"); len(deviceId) > 0 {
+			pusher.Subscribe(deviceId)
+		} else {
+			err := errors.New("Provided device_id is invalid.")
+			log.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+	}
+}
+
+func WSSubscriptionHandler(pusher *WSPusher) ws.Handler {
+	return ws.Handler(func(conn *ws.Conn) {
+		<-pusher.Subscribe(conn)
+	})
 }

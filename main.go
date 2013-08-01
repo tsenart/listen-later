@@ -18,12 +18,16 @@ func init() {
 
 func main() {
 	queue := NewQueue()
-	pusher := NewPusher(*gcmKey)
+	gcmPusher := NewGCMPusher(*gcmKey)
+	wsPusher := NewWSPusher()
+	bus := NewEventBus([]Subscriber{gcmPusher, wsPusher})
 
 	r := pat.New()
-	r.Get("/queue", QueueHandler(queue, pusher))
-	r.Post("/enqueue/{urn}", EnqueueHandler(queue, pusher))
-	r.Post("/dequeue", DequeueHandler(queue, pusher))
+	r.Get("/queue", QueueHandler(queue))
+	r.Post("/enqueue/{urn}", EnqueueHandler(queue, bus))
+	r.Post("/dequeue", DequeueHandler(queue, bus))
+	r.Handle("/subscribe/gcm", GCMSubscriptionHandler(gcmPusher))
+	r.Handle("/subscribe/ws", WSSubscriptionHandler(wsPusher))
 
 	err := http.ListenAndServe(*listen, r)
 	if err != nil {
