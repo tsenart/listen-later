@@ -12,9 +12,9 @@ func QueueHandler(queue *Queue, pusher *Pusher) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if deviceId := r.URL.Query().Get("device_id"); len(deviceId) > 0 {
 			pusher.Register(deviceId)
+			log.Printf("Registered device_id `%s`.\n", deviceId)
 		}
 		out, _ := json.Marshal(queue)
-		log.Printf("OUT %s\n", out)
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Content-Length", strconv.Itoa(len(out)))
 		w.Write(out)

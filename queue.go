@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
 	"sync"
 )
 
@@ -53,5 +53,5 @@ func (q *Queue) String() string {
 func (q *Queue) MarshalJSON() ([]byte, error) {
 	q.RLock()
 	defer q.RUnlock()
-	return []byte(strings.Join(q.items, ", ")), nil
+	return json.Marshal(q.items)
 }

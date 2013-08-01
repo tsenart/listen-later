@@ -1,11 +1,12 @@
 package main
 
 import (
+	"log"
 	"sync"
 )
 
 type Pusher struct {
-	sync.Mutex
+	sync.RWMutex
 	bus       chan Event
 	deviceIds map[string]struct{}
 }
@@ -28,17 +29,28 @@ func NewPusher() *Pusher {
 
 func (p *Pusher) loop() {
 	for event := range p.bus {
-		// Implement sending to GCM
+		log.Printf("Sending %v to %v\n", event, p.DeviceIds())
 	}
 }
 
 func (p *Pusher) Register(deviceId string) {
 	p.Lock()
 	defer p.Unlock()
-
 	p.deviceIds[deviceId] = struct{}{}
 }
 
 func (p *Pusher) Send(e Event) {
-	// Implement sending event to bus
+	p.bus <- e
+}
+
+func (p *Pusher) DeviceIds() []string {
+	p.RLock()
+	defer p.RUnlock()
+
+	deviceIds := make([]string, 0, len(p.deviceIds))
+	for deviceId, _ := range p.deviceIds {
+		deviceIds = append(deviceIds, deviceId)
+	}
+
+	return deviceIds
 }
