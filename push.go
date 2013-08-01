@@ -1,6 +1,11 @@
 package main
 
+import (
+	"sync"
+)
+
 type Pusher struct {
+	sync.Mutex
 	bus       chan Event
 	deviceIds map[string]struct{}
 }
@@ -28,7 +33,10 @@ func (p *Pusher) loop() {
 }
 
 func (p *Pusher) Register(deviceId string) {
-	// Implement registering device id
+	p.Lock()
+	defer p.Unlock()
+
+	p.deviceIds[deviceId] = struct{}{}
 }
 
 func (p *Pusher) Send(e Event) {
