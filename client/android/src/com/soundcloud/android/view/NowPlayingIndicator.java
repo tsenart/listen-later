@@ -194,6 +194,7 @@ public class NowPlayingIndicator extends ProgressBar {
     public void setWaveform(WaveformData waveformData) {
         mWaveformData = waveformData;
         setWaveformMask();
+        invalidate();
     }
 
     private static Bitmap createWaveformMask(WaveformData waveformData, int width, int height) {
