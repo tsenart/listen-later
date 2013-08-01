@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	gcm "github.com/googollee/go-gcm"
 	"log"
 	"sync"
 )
@@ -9,6 +11,7 @@ type Pusher struct {
 	sync.RWMutex
 	bus       chan Event
 	deviceIds map[string]struct{}
+	client    *gcm.Client
 }
 
 type Event struct {
@@ -16,20 +19,31 @@ type Event struct {
 	Payload string `json:"payload"`
 }
 
-func NewPusher() *Pusher {
+func NewPusher(key string) (*Pusher, error) {
+	if len(key) == 0 {
+		return nil, fmt.Errorf("GCM key can't be empty.")
+	}
+
 	pusher := &Pusher{
 		bus:       make(chan Event),
 		deviceIds: make(map[string]struct{}),
+		client:    gcm.New(key),
 	}
 
 	go pusher.loop()
 
-	return pusher
+	return pusher, nil
 }
 
 func (p *Pusher) loop() {
 	for event := range p.bus {
 		log.Printf("Sending %v to %v\n", event, p.DeviceIds())
+		message := gcm.NewMessage(p.DeviceIds()...)
+		message.SetPayload(event.Name, event.Payload)
+		_, err := p.client.Send(message)
+		if err != nil {
+			log.Printf("Error: Failed to send `%v`: %s", event, err)
+		}
 	}
 }
 

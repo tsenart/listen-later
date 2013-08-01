@@ -9,6 +9,7 @@ import (
 
 var (
 	listen = flag.String("listen", "localhost:9110", "HTTP service listen address")
+	gcmKey = flag.String("gcmkey", "", "GCM API Key")
 )
 
 func init() {
@@ -17,14 +18,17 @@ func init() {
 
 func main() {
 	queue := NewQueue()
-	pusher := NewPusher()
+	pusher, err := NewPusher(*gcmKey)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	r := pat.New()
 	r.Get("/queue", QueueHandler(queue, pusher))
 	r.Post("/enqueue/{urn}", EnqueueHandler(queue, pusher))
 	r.Post("/dequeue", DequeueHandler(queue, pusher))
 
-	err := http.ListenAndServe(*listen, r)
+	err = http.ListenAndServe(*listen, r)
 	if err != nil {
 		log.Fatal(err)
 	}
