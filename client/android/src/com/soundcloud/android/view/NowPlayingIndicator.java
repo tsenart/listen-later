@@ -57,6 +57,7 @@ public class NowPlayingIndicator extends ProgressBar {
     private WaveformController.WaveformState mWaveformState;
     private int mWaveformErrorCount;
     private WaveformData mWaveformData;
+    private boolean mDrawSeparator;
 
     @SuppressWarnings("UnusedDeclaration")
     public NowPlayingIndicator(Context context) {
@@ -74,6 +75,11 @@ public class NowPlayingIndicator extends ProgressBar {
     public NowPlayingIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
+    }
+
+    public void setDrawSeparator(boolean drawSeparator){
+        mDrawSeparator = drawSeparator;
+        invalidate();
     }
 
     private void init(final Context context) {
@@ -172,12 +178,16 @@ public class NowPlayingIndicator extends ProgressBar {
         // Orange
         tmp.drawRect(0, 0, progressWidth, getHeight(), mTopOrange);
         tmp.drawRect(0, topPartHeight, progressWidth, getHeight(), mBottomOrange);
-        tmp.drawRect(0, separatorTop, progressWidth, separatorBottom, mSeparatorOrange);
+        if (mDrawSeparator){
+            tmp.drawRect(0, separatorTop, progressWidth, separatorBottom, mSeparatorOrange);
+        }
 
         // Grey
         tmp.drawRect(progressWidth, 0, mAdjustedWidth, topPartHeight, mTopGrey);
         tmp.drawRect(progressWidth, topPartHeight, mAdjustedWidth, getHeight(), mBottomGrey);
-        tmp.drawRect(progressWidth, separatorTop, mAdjustedWidth, separatorBottom, mSeparatorGrey);
+        if (mDrawSeparator){
+            tmp.drawRect(progressWidth, separatorTop, mAdjustedWidth, separatorBottom, mSeparatorGrey);
+        }
 
         canvas.drawBitmap(
                 mWaveformMask,

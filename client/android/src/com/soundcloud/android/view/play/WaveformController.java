@@ -15,7 +15,6 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewConfiguration;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import java.lang.ref.WeakReference;
@@ -25,7 +24,7 @@ public class WaveformController extends TouchLayout {
 
     private final NowPlayingIndicator mNowPlaying;
 
-    protected ProgressBar mProgressBar;
+
     protected WaveformHolder mWaveformHolder;
     protected RelativeLayout mWaveformFrame;
     protected @Nullable Track mTrack;
@@ -78,7 +77,6 @@ public class WaveformController extends TouchLayout {
 
         mWaveformFrame = (RelativeLayout) findViewById(R.id.waveform_frame);
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         mNowPlaying = (NowPlayingIndicator) findViewById(R.id.waveform_now_playing);
         setOnTouchListener(this);
@@ -142,12 +140,14 @@ public class WaveformController extends TouchLayout {
     }
 
     private void showWaiting() {
+        mNowPlaying.setDrawSeparator(false);
         mWaveformHolder.showWaitingLayout(true);
         mHandler.removeCallbacks(mShowWaiting);
         invalidate();
     }
 
     private void hideWaiting() {
+        mNowPlaying.setDrawSeparator(true);
         mHandler.removeCallbacks(mShowWaiting);
         mWaveformHolder.hideWaitingLayout();
         invalidate();
@@ -166,7 +166,6 @@ public class WaveformController extends TouchLayout {
             return;
 
         final int progress = (int) (pos * 1000 / mDuration);
-        mProgressBar.setProgress(progress);
         mNowPlaying.setProgress(progress);
         mNowPlaying.invalidate();
 
@@ -175,7 +174,6 @@ public class WaveformController extends TouchLayout {
 
 
     public void setSecondaryProgress(int percent) {
-        mProgressBar.setSecondaryProgress(percent);
         mNowPlaying.setSecondaryProgress(percent);
     }
 

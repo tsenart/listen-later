@@ -7,20 +7,12 @@
 
     <com.soundcloud.android.view.play.WaveformHolder android:id="@+id/waveform_holder"
                                                 android:layout_width="fill_parent"
-                                                android:layout_height="@dimen/player_portrait_half_wave_height">
+                                                android:layout_height="@dimen/player_wave_height">
 
         <com.soundcloud.android.view.NowPlayingIndicator android:id="@+id/waveform_now_playing"
                                                          android:layout_width="fill_parent"
                                                          android:layout_height="fill_parent"
                                                          style="@android:style/Widget.ProgressBar.Horizontal"/>
-
-        <ProgressBar
-                style="@style/ScProgressBar"
-                android:id="@+id/progress_bar"
-                android:visibility="invisible"
-                android:layout_alignParentTop="true"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"/>
 
         <RelativeLayout android:id="@+id/connecting_bar"
                         android:layout_width="fill_parent"
@@ -29,8 +21,10 @@
 
             <ProgressBar style="@style/ScProgressBar"
                          android:indeterminateOnly="true"
+                         android:layout_alignParentBottom="true"
+                         android:layout_marginBottom="15dp"
                          android:layout_width="fill_parent"
-                         android:layout_height="fill_parent"/>
+                         android:layout_height="wrap_content"/>
         </RelativeLayout>
     </com.soundcloud.android.view.play.WaveformHolder>
 

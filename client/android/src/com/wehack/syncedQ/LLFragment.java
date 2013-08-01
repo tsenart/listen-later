@@ -2,6 +2,7 @@ package com.wehack.syncedQ;
 
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,11 +15,18 @@ import android.view.View;
 import android.widget.ListView;
 
 public class LLFragment extends ListFragment {
+    SlideExpandableListAdapter mSlideExpandableListAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        setListAdapter(getAdapter());
+
+        mSlideExpandableListAdapter = new SlideExpandableListAdapter(
+                getLLQueue(),
+                R.id.progress_overlay,
+                R.id.waveform_controller
+        );
+        setListAdapter(mSlideExpandableListAdapter);
 
     }
 
@@ -34,25 +42,26 @@ public class LLFragment extends ListFragment {
         getActivity().unbindService(mServiceConnection);
     }
 
-    private LLQueue getAdapter() {
+    private LLQueue getLLQueue() {
         return LLQueue.get();
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        getAdapter().play(position);
+        mSlideExpandableListAdapter.toggleExpanded(v, position);
+        getLLQueue().play(position);
     }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName classname, IBinder obj) {
             if (obj instanceof LocalBinder) {
-                getAdapter().setPlaybackService((CloudPlaybackService) ((LocalBinder) obj).getService());
+                getLLQueue().setPlaybackService((CloudPlaybackService) ((LocalBinder) obj).getService());
             }
         }
         @Override
         public void onServiceDisconnected(ComponentName classname) {
-            getAdapter().setPlaybackService(null);
+            getLLQueue().setPlaybackService(null);
         }
     };
 

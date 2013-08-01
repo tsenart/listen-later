@@ -13,12 +13,10 @@ import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 @SuppressWarnings("deprecation")
 public class PlayerTrackView extends LinearLayout implements WaveformController.WaveformListener {
-
 
     private WaveformController mWaveformController;
     protected  @Nullable Track mTrack;
@@ -33,7 +31,6 @@ public class PlayerTrackView extends LinearLayout implements WaveformController.
 
         mListener = llQueue;
 
-        ((ProgressBar) findViewById(R.id.progress_bar)).setMax(1000);
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
         mWaveformController.setProgressBackgroundMask((ProgressBackgroundMask) findViewById(R.id.progress_overlay));
@@ -52,8 +49,6 @@ public class PlayerTrackView extends LinearLayout implements WaveformController.
     @Deprecated
     public void setTrack(@NotNull Track track, int queuePosition, long progress) {
         mTrack = track;
-
-
         ((TextView) findViewById(R.id.user)).setText(mTrack.getUsername());
         ((TextView) findViewById(R.id.track)).setText(mTrack.getTitle());
 
