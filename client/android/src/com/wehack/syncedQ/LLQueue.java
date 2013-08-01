@@ -109,9 +109,6 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         return null;
     }
 
-    ;
-
-
     @Override
     public int getCount() {
         return mTracks.size();
@@ -181,14 +178,6 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         }
 
         return false;
-    }
-
-    public Track getPrev() {
-        if (mCurrentPosition > 0) {
-            return getTrackAt(mCurrentPosition - 1);
-        } else {
-            return null;
-        }
     }
 
     public Track getNext() {
