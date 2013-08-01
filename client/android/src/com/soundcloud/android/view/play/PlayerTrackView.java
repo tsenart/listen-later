@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -38,12 +37,6 @@ public class PlayerTrackView extends LinearLayout implements WaveformController.
         mWaveformController = (WaveformController) findViewById(R.id.waveform_controller);
         mWaveformController.setListener(mListener);
         mWaveformController.setProgressBackgroundMask((ProgressBackgroundMask) findViewById(R.id.progress_overlay));
-    }
-
-    // TODO, this is currently true all the time
-    public void setOnScreen(boolean onScreen){
-        mOnScreen = onScreen;
-        mWaveformController.setOnScreen(onScreen);
     }
 
     @Override
@@ -76,14 +69,7 @@ public class PlayerTrackView extends LinearLayout implements WaveformController.
         mWaveformController.onDestroy();
     }
 
-    public WaveformController getWaveformController() {
-        return mWaveformController;
-    }
-
-
-
     public void handleStatusIntent(Intent intent) {
-        Log.i("asdf", "Handle status Intent " + intent.getAction());
         if (mTrack == null) return;
 
         String action = intent.getAction();
@@ -108,7 +94,6 @@ public class PlayerTrackView extends LinearLayout implements WaveformController.
         }
     }
 
-
     public void setProgress(long pos) {
         if (pos >= 0 && mDuration > 0) {
             mWaveformController.setProgress(pos);
@@ -119,10 +104,6 @@ public class PlayerTrackView extends LinearLayout implements WaveformController.
 
     public void setBufferingState(boolean isBuffering) {
         mWaveformController.setBufferingState(isBuffering);
-    }
-
-    public void setPlaybackStatus(boolean isPlaying, long position) {
-        mWaveformController.setPlaybackStatus(isPlaying, position);
     }
 
     public void clear() {

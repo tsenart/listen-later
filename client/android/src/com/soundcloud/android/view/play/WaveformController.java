@@ -10,11 +10,9 @@ import com.wehack.syncedQ.Track;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewConfiguration;
 import android.widget.ProgressBar;
@@ -30,7 +28,6 @@ public class WaveformController extends TouchLayout {
     protected ProgressBar mProgressBar;
     protected WaveformHolder mWaveformHolder;
     protected RelativeLayout mWaveformFrame;
-    private PlayerTouchBar mPlayerTouchBar;
     protected @Nullable Track mTrack;
     protected int mQueuePosition;
 
@@ -45,23 +42,17 @@ public class WaveformController extends TouchLayout {
 
     private static final int UI_UPDATE_SEEK = 1;
     private static final int UI_SEND_SEEK   = 2;
-    private static final int UI_UPDATE_COMMENT_POSITION = 3;
-    protected static final int UI_CLEAR_SEEK = 6;
+    protected static final int UI_CLEAR_SEEK = 3;
 
     static final int TOUCH_MODE_NONE = 0;
     static final int TOUCH_MODE_SEEK_DRAG = 1;
-    static final int TOUCH_MODE_COMMENT_DRAG = 2;
     static final int TOUCH_MODE_SEEK_CLEAR_DRAG = 4;
 
     protected int mode = TOUCH_MODE_NONE;
 
-    protected boolean mShowComment;
-    private static final long MIN_COMMENT_DISPLAY_TIME = 2000;
-
     // only allow smooth progress updates on 9 or greater because they have buffering events for proper displaying
     private boolean mIsBuffering, mWaitingForSeekComplete;
     private int mTouchSlop;
-    private int mWaveformColor;
 
     private WaveformListener mListener;
 
@@ -89,16 +80,8 @@ public class WaveformController extends TouchLayout {
         mWaveformHolder = (WaveformHolder) findViewById(R.id.waveform_holder);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
-        mWaveformColor = context.getResources().getColor(android.R.color.holo_red_dark);
-
         mNowPlaying = (NowPlayingIndicator) findViewById(R.id.waveform_now_playing);
-        mPlayerTouchBar = (PlayerTouchBar) findViewById(R.id.track_touch_bar);
-
-        mPlayerTouchBar.setLandscape(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
-
-        // override default touch layout functionality, these views are all we want to respond
-        mPlayerTouchBar.setOnTouchListener(this);
-        setOnTouchListener(null);
+        setOnTouchListener(this);
     }
 
     @Override
@@ -116,10 +99,6 @@ public class WaveformController extends TouchLayout {
 
     public void setListener(WaveformListener listener){
         mListener = listener;
-    }
-
-    protected boolean isLandscape(){
-        return false;
     }
 
     public void setBufferingState(boolean isBuffering) {
@@ -153,13 +132,11 @@ public class WaveformController extends TouchLayout {
     public void onSeek(long seekTime){
         setProgressInternal(seekTime);
         setProgress(seekTime);
-        //stopSmoothProgress();
         mWaitingForSeekComplete = true;
         mHandler.postDelayed(mShowWaiting,500);
     }
 
     public void onSeekComplete(){
-        //stopSmoothProgress();
         mWaitingForSeekComplete = false;
         hideWaiting();
     }
@@ -185,7 +162,6 @@ public class WaveformController extends TouchLayout {
     }
 
     protected void setProgressInternal(long pos) {
-        Log.i("asdf", "Set Progress Internal " + pos + " " + mDuration);
         if (mDuration <= 0)
             return;
 
@@ -230,26 +206,14 @@ public class WaveformController extends TouchLayout {
 
     @Override
     protected void processDownInput(InputObject input) {
-        if (mode == TOUCH_MODE_COMMENT_DRAG) {
-            mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
-            queueUnique(UI_UPDATE_COMMENT_POSITION);
-
-        } else if (input.view == mPlayerTouchBar) {
-            mode = TOUCH_MODE_SEEK_DRAG;
-            mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
-            queueUnique(UI_UPDATE_SEEK);
-        }
+        mode = TOUCH_MODE_SEEK_DRAG;
+        mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
+        queueUnique(UI_UPDATE_SEEK);
     }
 
     @Override
     protected void processMoveInput(InputObject input) {
         switch (mode) {
-            case TOUCH_MODE_COMMENT_DRAG:
-                if (isOnTouchBar(input.y)) {
-                    mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
-                    queueUnique(UI_UPDATE_COMMENT_POSITION);
-                }
-                break;
             case TOUCH_MODE_SEEK_DRAG:
                 if (isOnTouchBar(input.y)) {
                     mSeekPercent = ((float) input.x) / mWaveformHolder.getWidth();
@@ -294,15 +258,12 @@ public class WaveformController extends TouchLayout {
     }
 
     private boolean isOnTouchBar(int y){
-        return (y > mPlayerTouchBar.getTop() - mTouchSlop && y < mPlayerTouchBar.getBottom() + mTouchSlop);
+
+        return (y > -mTouchSlop && y < getHeight() + mTouchSlop);
     }
 
     protected void queueUnique(int what) {
         if (!mTouchHandler.hasMessages(what)) mTouchHandler.sendEmptyMessage(what);
-    }
-
-    protected long stampFromPosition(int x) {
-        return (long) (Math.min(Math.max(.001, (((float) x) / getWidth())), 1) * mTrack.getDuration());
     }
 
     public enum WaveformState {
@@ -312,7 +273,6 @@ public class WaveformController extends TouchLayout {
 
     private void processTouchMessage(int what){
         final float seekPercent = mSeekPercent;
-        final PlayerTouchBar touchBar = mPlayerTouchBar;
 
         switch (what) {
             case UI_UPDATE_SEEK:
@@ -322,8 +282,7 @@ public class WaveformController extends TouchLayout {
                         // the seek did not work, abort
                         mode = TOUCH_MODE_NONE;
                     } else {
-                        mPlayerTouchBar.setSeekPosition((int) (seekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
-                        mBackgroundMask.setProgress((int) (1000 * seekPercent));
+                        mNowPlaying.setProgress((int) (1000 * seekPercent));
                     }
                     mWaveformHolder.invalidate();
                 }
@@ -333,11 +292,9 @@ public class WaveformController extends TouchLayout {
                 if (mListener != null) {
                     mListener.sendSeek(seekPercent);
                 }
-                mPlayerTouchBar.clearSeek();
                 break;
 
             case UI_CLEAR_SEEK:
-                touchBar.clearSeek();
                 break;
         }
     }
