@@ -65,6 +65,9 @@ func GCMSubscriptionHandler(pusher *GCMPusher) http.HandlerFunc {
 
 func WSSubscriptionHandler(pusher *WSPusher) ws.Handler {
 	return ws.Handler(func(conn *ws.Conn) {
-		<-pusher.Subscribe(conn)
+		if err := <-pusher.Subscribe(conn); err != nil {
+			log.Println(err.Error())
+			conn.WriteClose(http.StatusBadRequest)
+		}
 	})
 }
