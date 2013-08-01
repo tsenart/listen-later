@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="scOrange">#ff6600</color>
+    <color name="scDarkOrange">#CCe36711</color>
+    <color name="scDarkGray">#CC101010</color>
+
+    <color name="listTxtValue">#FF000000</color>
+    <color name="listTxtValuePressed">#88FFFFFF</color>
+    <color name="listTxtValueInactive">#FFa9a9a9</color>
+    <color name="listTxtSecondary">#FF777777</color>
+    <color name="listTxtRecSecondary">#FFcccccc</color>
+    <color name="listTxtCreatedAt">#FFc9c9c9</color>
+    <color name="listTxtTrackUser">#FF828282</color>
+
+    <color name="statsColor">#FF828282</color>
+    <color name="statsColorPressed">#88FFFFFF</color>
+
+    <color name="listTxtDarkValue">#FFFFFFFF</color>
+    <color name="listTxtDarkValuePressed">#88FFFFFF</color>
+
+    <color name="darkBg">#FF333333</color>
+
+    <color name="listTxtHeader">#777777</color>
+    <color name="commentLine">#AAD7D7D7</color>
+    <color name="activeCommentLine">#CCe36711</color>
+
+    <color name="portraitPlayerCommentLine">#FFEF5002</color>
+
+    <color name="playerControlBackground">#FFF2F2F2</color>
+    <color name="playerControlAlphaBackground">#AAF2F2F2</color>
+
+    <color name="commentGray">#ff9c9c9c</color>
+
+    <color name="recordUploadBorder">#ff525252</color>
+    <color name="recordListItemBackground">#ff999999</color>
+
+    <color name="btnDarkFlat">#242424</color>
+    <color name="btnOrangePressedStart">@color/scOrange</color>
+    <color name="btnOrangePressedEnd">#ff3300</color>
+    <color name="btnTransparentSelectedStroke">#80ffffff</color>
+    <color name="recButtonBarSeparator">#ff000000</color>
+
+    <color name="recButtonBarBgStart">#333333</color>
+    <color name="recButtonBarBgEnd">#222222</color>
+
+    <color name="cloudProgressBackgroundStart">#FF444444</color>
+    <color name="cloudProgressBackgroundCenter">#FF666666</color>
+    <color name="cloudProgressBackgroundEnd">#FF444444</color>
+
+    <color name="cloudProgressSecondaryStart">#222222</color>
+    <color name="cloudProgressSecondaryCenter">#444444</color>
+    <color name="cloudProgressSecondaryEnd">#222222</color>
+
+    <color name="cloudProgressStart">#ff3300</color>
+    <color name="cloudProgressCenter">@color/scOrange</color>
+    <color name="cloudProgressEnd">#ff3300</color>
+
+    <color name="cloudProgressLandscapeBackgroundStart">#FF444444</color>
+    <color name="cloudProgressLandscapeBackgroundCenter">#FF666666</color>
+    <color name="cloudProgressLandscapeBackgroundEnd">#FF444444</color>
+
+    <color name="cloudProgressRoundBackgroundStart">#FF222222</color>
+    <color name="cloudProgressRoundBackgroundCenter">#FF222222</color>
+    <color name="cloudProgressRoundBackgroundEnd">#FF222222</color>
+
+    <color name="cloudProgressRoundStart">#fd320c</color>
+    <color name="cloudProgressRoundCenter">#ef5002</color>
+    <color name="cloudProgressRoundEnd">#f92600</color>
+
+    <color name="cloudProgressRoundBorder">#4b504c</color>
+
+    <color name="tour_overlay">#CC000000</color>
+    <color name="signup_separator">#999999</color>
+
+    <!-- For settings framework -->
+    <color name="darker_gray">#aaa</color>
+
+    <color name="upload_monitor_text">#ff000000</color>
+    <color name="upload_monitor_text_inactive">#ff9e9e9e</color>
+
+    <color name="fim_item_text_color">#ffffff</color>
+
+    <color name="search_item_unselected_color">#999999</color>
+    <color name="search_item_selected_color">#ffffff</color>
+    <color name="search_item_pressed_color">@color/scOrange</color>
+
+    <color name="pressed_next">#CCff6600</color>
+
+    <color name="pressed_home_next">#99ff6600</color>
+
+    <color name="main_menu_bg">#FF222222</color>
+
+    <color name="light_gray_text">#CCCCCC</color>
+    <color name="track_info_separator">#FFE5E5E5</color>
+
+    <color name="txt_description_color">#FF666666</color>
+
+    <color name="dialog_list_txt_disabled">#777</color>
+
+</resources>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="left_margin">10dip</dimen>
+    <dimen name="tab_text_size">12sp</dimen>
+
+    <dimen name="next_home_width">68dp</dimen>
+
+    <dimen name="notification_image_width">65dip</dimen>
+    <dimen name="notification_image_height">65dip</dimen>
+
+    <dimen name="list_icon_width">47dip</dimen>
+    <dimen name="list_icon_height">47dip</dimen>
+
+    <dimen name="activity_icon_width">40dip</dimen>
+    <dimen name="activity_icon_height">40dip</dimen>
+
+    <dimen name="list_item_padding_left">16dip</dimen>
+    <dimen name="list_item_padding_top">12dip</dimen>
+    <dimen name="list_item_padding_right">16dip</dimen>
+    <dimen name="list_item_padding_bottom">12dip</dimen>
+
+    <dimen name="list_icon_margin_right">5dip</dimen>
+
+    <dimen name="list_txt_pull_size">16sp</dimen>
+    <dimen name="list_txt_main_size">14sp</dimen>
+    <dimen name="list_txt_sub_size">12sp</dimen>
+    <dimen name="list_txt_sub_2_size">10sp</dimen>
+
+    <dimen name="comment_panel_main_size">14sp</dimen>
+    <dimen name="comment_panel_created_at_size">12sp</dimen>
+
+    <dimen name="list_text_margin_left">5dip</dimen>
+
+    <dimen name="user_browser_info_username_margin_bottom">0dip</dimen>
+
+    <!-- can't change one of these without change them all -->
+    <dimen name="player_time_height">18dip</dimen>
+    <dimen name="player_portrait_half_wave_height">50dip</dimen>
+    <dimen name="player_transport_height">60dp</dimen>
+    <!-- end of can't change one of these without change them all -->
+
+    <dimen name="player_info_button_margin">0dp</dimen>
+
+    <dimen name="player_time_text_size">10sp</dimen>
+    <dimen name="player_time_text_instructions_size">12sp</dimen>
+
+    <dimen name="player_time_comment_height">80dip</dimen>
+    <dimen name="player_time_comment_width">140dip</dimen>
+
+    <dimen name="player_avatar_bar_height">10dip</dimen>
+    <dimen name="player_avatar_bar_height_land">32dip</dimen>
+
+    <dimen name="player_comment_bar_txt_size">16sp</dimen>
+
+    <dimen name="share_user_header_height">30dip</dimen>
+    <dimen name="share_user_header_text_size">16sp</dimen>
+    <dimen name="share_user_icon_width">32px</dimen>
+    <dimen name="share_user_icon_height">32px</dimen>
+    <dimen name="share_progress_icon_width">67px</dimen>
+    <dimen name="share_progress_icon_height">67px</dimen>
+
+    <dimen name="tour_bottom_bar_height">80dp</dimen>
+    <dimen name="tour_bottom_radio_height">32dp</dimen>
+    <dimen name="tour_buttons_height">48dp</dimen>
+
+    <dimen name="tour_logo_dimension">110dp</dimen>
+
+    <dimen name="rec_header_you_button_width">40dp</dimen>
+
+    <dimen name="create_wave_view_bottom_margin">37dp</dimen>
+    <dimen name="trim_handle_left_margin_offset">-3dip</dimen>
+    <dimen name="trim_handle_right_margin_offset">-2dip</dimen>
+
+    <dimen name="round_progress_bar_corner_radius">10dp</dimen>
+    <dimen name="rec_chronometer_text_size">32sp</dimen>
+
+    <dimen name="button_bar_height">60dp</dimen>
+
+    <dimen name="rec_toggle_fade_margin_top">15dp</dimen>
+
+    <dimen name="slm_item_padding_topbottom">11dp</dimen>
+    <dimen name="slm_item_padding_left">14dp</dimen>
+    <dimen name="slm_item_padding_right">16dp</dimen>
+
+    <dimen name="search_item_padding_topbottom">13dp</dimen>
+
+    <dimen name="slm_item_text_size">16sp</dimen>
+    <dimen name="slm_item_text_padding_left">10dp</dimen>
+
+    <dimen name="slm_item_dashboard_counter_text_size">12px</dimen>
+
+    <dimen name="slm_search_item_text_padding">10dp</dimen>
+
+    <dimen name="search_header_padding_topbottom">10dp</dimen>
+    <dimen name="search_header_padding_leftright">8dp</dimen>
+
+    <dimen name="btn_text_size">13sp</dimen>
+    <dimen name="btn_height">38dp</dimen>
+
+    <dimen name="stats_view_font_offset">-1dp</dimen>
+
+    <dimen name="stats_view_play_icon_offset">1dp</dimen>
+    <dimen name="stats_view_likes_icon_offset">1dp</dimen>
+    <dimen name="stats_view_reposts_icon_offset">1dp</dimen>
+    <dimen name="stats_view_comments_icon_offset">2dp</dimen>
+
+    <dimen name="stats_view_item_padding">4dp</dimen>
+    <dimen name="stats_view_separator_width">1dp</dimen>
+
+    <dimen name="stats_view_item_text_size">12sp</dimen>
+
+    <dimen name="list_playlist_track_count_bg_corner_radius">3dp</dimen>
+    <dimen name="list_playlist_track_count_dimension">25dp</dimen>
+
+    <dimen name="user_page_icon_size">67dp</dimen>
+    <dimen name="playlist_page_icon_size">80dp</dimen>
+
+    <dimen name="signup_label_height">32dp</dimen><!-- ic_done_dark_sm drawable + padding -->
+    <dimen name="signup_label_padding">4dp</dimen>
+    <dimen name="signup_done_drawable_padding">7dp</dimen>
+
+    <dimen name="onboarding_suggested_user_item_height">108dp</dimen>
+    <dimen name="onboarding_suggested_user_item_spacing">16dp</dimen>
+
+    <dimen name="explore_suggested_track_item_height">180dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_outside_left_right">16dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_outside_top_bottom">10dp</dimen>
+    <dimen name="explore_suggested_track_item_spacing_inside">10dp</dimen>
+
+    <dimen name="empty_message_margin_left_right">20dp</dimen>
+</resources>

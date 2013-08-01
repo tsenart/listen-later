@@ -1,0 +1,55 @@
+gen
+lib
+libs
+obj
+
+# OS X Finder and svn
+.DS_Store
+.svn
+.settings
+
+# intellij
+soundcloud-android.ipr
+soundcloud-android.iws
+app/gen-external-apklibs/
+tests-integration/gen-external-apklibs/
+classes/
+
+# keystore
+ks/
+
+# idea
+.idea
+*.iml
+out
+tmp
+gen
+lint_files
+
+#eclipse
+.classpath
+
+#vim
+*.swp
+
+# ant
+local.properties
+build.xml
+soundcloud_sign
+
+#prefs
+com.soundcloud.android_preferences.xml
+#sbt
+project/boot
+project/plugins/project/
+target
+
+c2dm.credentials
+
+reg_ids.yaml
+
+.gradle
+
+# test data
+tests-*.sqlite
+coverage-error.log

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape  xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:startColor="@color/cloudProgressBackgroundStart"
+        android:centerColor="@color/cloudProgressBackgroundCenter"
+        android:centerY="0.5"
+        android:endColor="@color/cloudProgressBackgroundEnd"
+        android:angle="270"
+    />
+</shape>

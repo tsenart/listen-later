@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PlayerTime">
+        <attr name="show_arrow" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ButtonBar">
+        <attr name="button_background" format="reference" />
+        <attr name="separator_color" format="reference|color" />
+        <attr name="separator" format="integer" >
+            <flag name="none" value="1" />
+            <flag name="top" value="1" />
+            <flag name="bottom" value="2" />
+            <flag name="both" value="3" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PlayableBar">
+        <attr name="android:layout"/>
+    </declare-styleable>
+
+    <declare-styleable name="PullToRefresh">
+        <attr name="ptr_adapterViewBackground" format="reference|color" />
+        <attr name="ptr_headerBackground" format="reference|color" />
+        <attr name="ptr_headerTextColor" format="color" />
+        <attr name="ptr_mode">
+            <flag name="pullDownFromTop" value="0x1" />
+            <flag name="pullUpFromBottom" value="0x2" />
+            <flag name="both" value="0x3" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="JaggedTextView">
+        <attr name="jagged_background" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="CustomFontTextView">
+        <attr name="custom_font" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="CustomButton">
+        <attr name="html_text" format="string" />
+    </declare-styleable>
+</resources>

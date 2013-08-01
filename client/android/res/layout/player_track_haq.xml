@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp">
+
+        <ImageView android:id="@+id/artwork"
+                   style="@style/ExploreGridItemImageView"/>
+
+
+        <!--android:background="#CCe36711"-->
+        <com.soundcloud.android.view.play.ProgressBackgroundMask
+                android:id="@+id/progress_overlay"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                />
+
+        <LinearLayout style="@style/ExploreGridItemTextHolder">
+
+            <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/user"
+                                                             style="@style/OnboardSuggestedUserUsernameText"/>
+            <com.soundcloud.android.view.tour.JaggedTextView android:id="@+id/track"
+                                                             style="@style/OnboardSuggestedUserLocationText"/>
+        </LinearLayout>
+
+        <ImageView style="@style/ExploreTrackGridItemSelector"/>
+
+        <com.soundcloud.android.view.play.WaveformController
+                android:id="@+id/waveform_controller"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="@dimen/left_margin"
+                android:layout_marginRight="@dimen/left_margin"
+                android:layout_marginBottom="10dip"
+                />
+
+        <ImageView style="@style/ExploreTrackGridItemSelector"/>
+
+
+    </RelativeLayout>
+</merge>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ScProgressBar">
+        <item name="android:background">@drawable/progress_bar_bg</item>
+        <item name="android:progressDrawable">@drawable/progress_bar</item>
+        <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
+
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:minHeight">40dip</item>
+        <item name="android:maxHeight">60dip</item>
+        <item name="android:minWidth">250dip</item>
+        <item name="android:maxWidth">5000dip</item>
+    </style>
+
+    <style name="ExploreTrackGridItemSelector">
+        <item name="android:background">@drawable/suggested_track_grid_item_selector</item>
+        <item name="android:layout_alignTop">@id/artwork</item>
+        <item name="android:layout_alignBottom">@id/artwork</item>
+        <item name="android:layout_alignLeft">@id/artwork</item>
+        <item name="android:layout_alignRight">@id/artwork</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+    <style name="ExploreGridItemImageView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+    <style name="ExploreGridItemTextHolder">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginTop">13dp</item>
+    </style>
+
+    <style name="BlackOverlayText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">9dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">1dp</item>
+
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:antialias">true</item>
+
+        <item name="jagged_background">#CC000000</item>
+    </style>
+
+
+    <style name="OnboardSuggestedUserText" parent="BlackOverlayText">
+        <item name="android:layout_marginLeft">13dp</item>
+    </style>
+    <style name="OnboardSuggestedUserUsernameText" parent="OnboardSuggestedUserText">
+        <item name="custom_font">fonts/Interstate-Regular.ttf</item>
+    </style>
+    <style name="OnboardSuggestedUserLocationText" parent="OnboardSuggestedUserText">
+        <item name="android:textColor">#CCCCCC</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+</resources>
