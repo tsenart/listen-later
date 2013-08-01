@@ -101,6 +101,11 @@ public class WaveformController extends TouchLayout {
         setOnTouchListener(null);
     }
 
+    @Override
+    protected boolean ignoreTouchEvents() {
+        return mTrack.getId() != CloudPlaybackService.getCurrentTrackId();
+    }
+
     public void setProgressBackgroundMask(ProgressBackgroundMask progressBackgroundMask){
         mBackgroundMask = progressBackgroundMask;
     }
@@ -318,6 +323,7 @@ public class WaveformController extends TouchLayout {
                         mode = TOUCH_MODE_NONE;
                     } else {
                         mPlayerTouchBar.setSeekPosition((int) (seekPercent * getWidth()), mPlayerTouchBar.getHeight(), false);
+                        mBackgroundMask.setProgress((int) (1000 * seekPercent));
                     }
                     mWaveformHolder.invalidate();
                 }

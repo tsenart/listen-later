@@ -26,13 +26,7 @@ public class PlayerTrackView extends LinearLayout implements WaveformController.
     private long mDuration;
     protected boolean mOnScreen;
     @NotNull
-    protected PlayerTrackViewListener mListener;
-
-    public interface PlayerTrackViewListener extends WaveformController.WaveformListener {
-        void onAddToPlaylist(Track track);
-        void onCloseCommentMode();
-    }
-
+    protected WaveformController.WaveformListener mListener;
     public PlayerTrackView(LLQueue llQueue, Context context, AttributeSet attrs) {
         super(context, attrs);
 

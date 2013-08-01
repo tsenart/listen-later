@@ -49,7 +49,7 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
 
 
     public boolean onTouch(View v, MotionEvent event) {
-        if (mTouchThread == null) return false;
+        if (mTouchThread == null || ignoreTouchEvents()) return false;
         try {
             // Fix scrolling inside workspace view
             if ((event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN) && getParent() != null) {
@@ -76,6 +76,8 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
         }
         return true; // indicate event was handled
     }
+
+    protected abstract boolean ignoreTouchEvents();
 
     private void processInputObject(InputObject input) {
 

@@ -1,5 +1,7 @@
 package com.wehack.syncedQ;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
@@ -8,6 +10,7 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.play.PlayerArtworkTrackView;
 import com.soundcloud.android.view.play.PlayerTrackView;
+import com.soundcloud.android.view.play.WaveformController;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
@@ -27,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class LLQueue extends BaseAdapter implements PlayQueueManager, PlayerTrackView.PlayerTrackViewListener {
+public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformController.WaveformListener {
 
     private static LLQueue sInstance;
     protected final Handler mHandler = new Handler();
@@ -44,6 +47,7 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, PlayerTrac
 
     private @Nullable
     CloudPlaybackService mPlaybackService;
+    private long mSeekPos;
 
     protected LLQueue() {
         loadListenLaterQueue();
@@ -74,12 +78,13 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, PlayerTrac
                 if (itemByTrackId != null){
                     itemByTrackId.progress = CloudPlaybackService.getCurrentProgress();
                 }
-
             } else if (intent.getAction().equals(CloudPlaybackService.BUFFERING)){
                 stopSmoothProgress();
             } else if (intent.getAction().equals(CloudPlaybackService.BUFFERING_COMPLETE)){
                 setProgressFromService();
                 startSmoothProgress();
+            }else if (CloudPlaybackService.SEEKING.equals(intent.getAction())) {
+                stopSmoothProgress();
             }
 
             final long longId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1L);
@@ -208,21 +213,26 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, PlayerTrac
     }
 
     @Override
-    public void onAddToPlaylist(Track track) {
+    public long sendSeek(float seekPercent) {
+        if (mPlaybackService == null) {
+            return -1;
+        }
+        mSeekPos = -1;
+        return mPlaybackService.seek(seekPercent, true);
     }
 
-    @Override
-    public void onCloseCommentMode() {
-    }
-
-    @Override
-    public long sendSeek(float seekPosition) {
-        return 0;
-    }
-
-    @Override
-    public long setSeekMarker(int queuePosition, float seekPosition) {
-        return 0;
+    public long setSeekMarker(int queuePosition, float seekPercent) {
+        final PlayQueueManager playlistManager = getPlaylistManager();
+        if (mPlaybackService != null && playlistManager != null) {
+            if (playlistManager.getPosition() != queuePosition) {
+                mPlaybackService.setQueuePosition(queuePosition);
+            } else {
+                // returns where would we be if we had seeked
+                mSeekPos = mPlaybackService.seek(seekPercent, false);
+                return mSeekPos;
+            }
+        }
+        return -1;
     }
 
     private int length() {
@@ -298,11 +308,14 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, PlayerTrac
 
         @Override
         protected void onPostExecute(List<Track> tracks) {
-            mTracks = new ArrayList<PlayQueueItem>(tracks.size());
-            for (Track track : tracks){
-                mTracks.add(new PlayQueueItem(track, 0));
+            if (tracks != null){
+                mTracks = new ArrayList<PlayQueueItem>(tracks.size());
+                for (Track track : tracks){
+                    mTracks.add(new PlayQueueItem(track, 0));
+                }
+                notifyDataSetChanged();
             }
-            notifyDataSetChanged();
+
         }
     }
 

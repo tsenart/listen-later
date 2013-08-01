@@ -34,7 +34,7 @@ public class PlayerTouchBar extends View {
     private void init(){
         mMarkerPaint = new Paint();
         mMarkerPaint.setStyle(Paint.Style.FILL);
-        mMarkerPaint.setColor(getResources().getColor(R.color.holo_blue_bright));
+        mMarkerPaint.setColor(getResources().getColor(R.color.black));
     }
 
 
