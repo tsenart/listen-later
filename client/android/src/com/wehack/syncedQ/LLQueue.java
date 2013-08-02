@@ -357,7 +357,7 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 
 
 
-    private void loadListenLaterQueue(){
+    public void loadListenLaterQueue(){
         mLoader = new ListenLaterLoader(LLApplication.instance.mWrapper);
         mLoader.execute();
     }

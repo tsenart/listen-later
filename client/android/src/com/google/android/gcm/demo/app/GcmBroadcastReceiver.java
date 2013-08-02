@@ -17,7 +17,10 @@ package com.google.android.gcm.demo.app;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.wehack.syncedQ.LLActivity;
+import com.wehack.syncedQ.LLQueue;
 import com.wehack.syncedQ.R;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -27,9 +30,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Handling of GCM messages.
@@ -52,6 +52,10 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         } else {
             sendNotification("Received: " + intent.getExtras().toString());
             // "urn":"soundcloud:sounds:125","finished_at":"0001-01-01T00:00:00Z","last_played_at":"0001-01-01T00:00:00Z","progress":0}
+
+            if (LLQueue.hasInstance()){
+                LLQueue.get().loadListenLaterQueue();
+            }
 
             if (intent.hasExtra("set")) {
                 String set = intent.getStringExtra("set");
