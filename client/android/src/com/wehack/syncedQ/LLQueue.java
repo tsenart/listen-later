@@ -294,6 +294,7 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             final PlayQueueItem playQueueItem = mTracks.get(position);
             if (playQueueItem.progress > 0){
                 mPlaybackService.setResumeInfo(playQueueItem.getId(), playQueueItem.progress);
+
             }
             mPlaybackService.openCurrent();
         }
