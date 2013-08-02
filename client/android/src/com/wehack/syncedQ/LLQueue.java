@@ -199,6 +199,10 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             mPlaybackService.togglePlayback();
         } else {
             mCurrentPosition = position;
+            final PlayQueueItem playQueueItem = mTracks.get(position);
+            if (playQueueItem.progress > 0){
+                mPlaybackService.setResumeInfo(playQueueItem.track.getId(), playQueueItem.progress);
+            }
             mPlaybackService.openCurrent();
         }
     }

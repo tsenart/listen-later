@@ -91,6 +91,12 @@ public class CloudPlaybackService extends Service  {
 
     /* package */ LLQueue mPlayQueueManager;
 
+    public void setResumeInfo(long resumeTrackId, long resumeTime) {
+        Log.i("asdf","Set Resume time " + resumeTrackId + " " + resumeTime);
+        mResumeTime = resumeTime;
+        mResumeTrackId = resumeTrackId;
+    }
+
     private long mResumeTime = -1;      // time of played track
     private long mResumeTrackId = -1;   // id of last played track
     private long mSeekPos = -1;         // desired seek position
@@ -825,15 +831,35 @@ public class CloudPlaybackService extends Service  {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "onPrepared(state=" + state + ")");
                 }
+
                 if (state == PREPARING) {
                     state = PREPARED;
+                    // do we need to resume a track position ?
+                    if (getCurrentTrackId() == mResumeTrackId && mResumeTime > 0) {
+                        Log.i("asdf","RESUME " + mResumeTime);
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "resuming to "+mResumeTime);
+                        }
 
-                    // sometimes paused for buffering happens right after prepare, so check buffering on a delay
-                    mPlayerHandler.sendEmptyMessageDelayed(CHECK_BUFFERING, 500);
-                    mPlayerHandler.removeMessages(FADE_OUT);
-                    mPlayerHandler.removeMessages(FADE_IN);
-                    setVolume(1.0f);
-                    play();
+                        // play before seek to prevent ANR
+                        play();
+                        seek(mResumeTime, true);
+                        mResumeTime = mResumeTrackId = -1;
+
+
+                        // normal play, unless first start (autopause=true)
+                    } else {
+                        // sometimes paused for buffering happens right after prepare, so check buffering on a delay
+                        mPlayerHandler.sendEmptyMessageDelayed(CHECK_BUFFERING,500);
+
+                        //  FADE_IN will call play()
+                        if (!mAutoPause) {
+                            mPlayerHandler.removeMessages(FADE_OUT);
+                            mPlayerHandler.removeMessages(FADE_IN);
+                            setVolume(1.0f);
+                            play();
+                        }
+                    }
 
                 } else {
                     stop();
