@@ -66,6 +66,18 @@ func (l *List) Delete(urn string) (*Playable, error) {
 	return &Playable{}, fmt.Errorf("`%s` not found", urn)
 }
 
+func (l *List) Find(urn string) (*Playable, error) {
+	l.RLock()
+	defer l.RUnlock()
+	for e := l.Front(); e != nil; e = e.Next() {
+		p := e.Value.(*Playable)
+		if urn == p.Urn {
+			return p, nil
+		}
+	}
+	return &Playable{}, fmt.Errorf("`%s` not found", urn)
+}
+
 func (l *List) MarshalJSON() ([]byte, error) {
 	items := make([]*Playable, l.Len())
 	var count int

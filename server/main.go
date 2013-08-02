@@ -25,6 +25,7 @@ func main() {
 	r := pat.New()
 	r.Get("/list", ShowHandler(list))
 	r.Put("/list/{urn}", SetHandler(list, bus))
+	r.Post("/list/{urn}/{action:(play|pause)}", PlaybackHandler(list, bus))
 	r.Delete("/list/{urn}", DeleteHandler(list, bus))
 	r.Handle("/subscribe/gcm", GCMSubscriptionHandler(gcmPusher))
 	r.Handle("/subscribe/ws", WSSubscriptionHandler(wsPusher))

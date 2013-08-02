@@ -72,6 +72,23 @@ func SetHandler(list *List, bus *EventBus) http.HandlerFunc {
 	}
 }
 
+func PlaybackHandler(list *List, bus *EventBus) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		action := r.URL.Query().Get(":action")
+		urn := r.URL.Query().Get(":urn")
+
+		playable, err := list.Find(urn)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		bus.Notify(Event{action, *playable})
+
+		ShowHandler(action)(w, r)
+	}
+}
+
 func DeleteHandler(list *List, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		urn := r.URL.Query().Get(":urn")
