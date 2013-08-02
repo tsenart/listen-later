@@ -17,6 +17,9 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import de.timroes.swipetodismiss.SwipeDismissList;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -88,8 +91,28 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             notifyDataSetChanged();
 
 
+            if (playQueueItem != null) {
+                Log.d("LLQueue", "dismissed "+playQueueItem);
+
+                new AsyncTask<Void,Void,Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        HttpClient client = LLApplication.instance.getApiWrapper().getHttpClient();
+                        try {
+                            HttpResponse resp = client.execute(new HttpDelete("http://54.246.158.145/list/"+playQueueItem.urn));
 
 
+                            if (resp.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                                Log.w("LLQueue", "error deleting item "+playQueueItem +","+resp.getStatusLine());
+                            }
+
+                        } catch (IOException e) {
+                            Log.w("LLQueue", "error deleting item "+playQueueItem, e);
+                        }
+                        return null;
+                    }
+                }.execute();
+            }
 
             return null;
 
@@ -443,6 +466,16 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
                 mId = ClientUri.fromUri(urn).numericId;
             }
             return mId;
+        }
+
+
+        @Override
+        public String toString() {
+            return "PlayQueueItem{" +
+                    "progress=" + progress +
+                    ", urn='" + urn + '\'' +
+                    ", mId=" + mId +
+                    '}';
         }
     }
 }
