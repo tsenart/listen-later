@@ -27,18 +27,14 @@ func ShowHandler(obj interface{}) http.HandlerFunc {
 
 func IndexHandler(list *List) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if handleCORS(w, r) {
-			return
-		}
+		CORSHandler()(w, r)
 		ShowHandler(list)(w, r)
 	}
 }
 
 func SetHandler(list *List, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if handleCORS(w, r) {
-			return
-		}
+		CORSHandler()(w, r)
 
 		var urn string
 		var finished, last time.Time
@@ -87,9 +83,7 @@ func SetHandler(list *List, bus *EventBus) http.HandlerFunc {
 
 func PlaybackHandler(list *List, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if handleCORS(w, r) {
-			return
-		}
+		CORSHandler()(w, r)
 
 		action := r.URL.Query().Get(":action")
 		urn := r.URL.Query().Get(":urn")
@@ -121,9 +115,7 @@ func PlaybackHandler(list *List, bus *EventBus) http.HandlerFunc {
 
 func DeleteHandler(list *List, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if handleCORS(w, r) {
-			return
-		}
+		CORSHandler()(w, r)
 
 		urn := r.URL.Query().Get(":urn")
 		if len(urn) == 0 {
@@ -166,10 +158,11 @@ func WSSubscriptionHandler(pusher *WSPusher) ws.Handler {
 	})
 }
 
-func handleCORS(w http.ResponseWriter, r *http.Request) bool {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Max-Age", "1728000")
-	w.Header().Set("Access-Control-Allow-Credentials", "false")
-	return r.Method == "OPTIONS"
+func CORSHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Max-Age", "1728000")
+		w.Header().Set("Access-Control-Allow-Credentials", "false")
+	}
 }

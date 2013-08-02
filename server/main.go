@@ -23,10 +23,16 @@ func main() {
 	bus := NewEventBus([]Subscriber{gcmPusher, wsPusher})
 
 	r := pat.New()
-	r.Handle("/list", IndexHandler(list))
-	r.Handle("/list/{urn}", SetHandler(list, bus))
-	r.Handle("/list/{urn}/{action:(play|pause)}", PlaybackHandler(list, bus))
-	r.Handle("/list/{urn}", DeleteHandler(list, bus))
+	corsHandler := CORSHandler()
+
+	r.Get("/list", IndexHandler(list))
+	r.Add("OPTIONS", "/list", corsHandler)
+	r.Put("/list/{urn}", SetHandler(list, bus))
+	r.Add("OPTIONS", "/list/{urn}", corsHandler)
+	r.Post("/list/{urn}/{action:(play|pause)}", PlaybackHandler(list, bus))
+	r.Add("OPTIONS", "/list/{urn}/{action:(play|pause)}", corsHandler)
+	r.Delete("/list/{urn}", DeleteHandler(list, bus))
+	r.Add("OPTIONS", "/list/{urn}", corsHandler)
 	r.Handle("/subscribe/gcm", GCMSubscriptionHandler(gcmPusher))
 	r.Handle("/subscribe/ws", WSSubscriptionHandler(wsPusher))
 
