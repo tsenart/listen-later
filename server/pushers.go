@@ -112,10 +112,17 @@ func (p *WSPusher) Subscribe(conn *ws.Conn) chan (error) {
 
 func (p *WSPusher) loop() {
 	for event := range p.events {
-		for addr, conn := range p.conns {
+		p.RLock()
+		conns := p.conns
+		p.RUnlock()
+		for addr, conn := range conns {
 			go func(event Event, addr net.Addr, conn *ws.Conn) {
 				if err := ws.JSON.Send(conn, event); err != nil {
 					log.Printf("Failed WS push to %s: %s", addr, err)
+					conn.Close()
+					p.Lock()
+					delete(p.conns, addr)
+					p.Unlock()
 					return
 				}
 				log.Printf("WSPushed `%v` event to %s.", event, addr)
