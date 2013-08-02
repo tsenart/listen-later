@@ -6,20 +6,27 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.soundcloud.android.model.ClientUri;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.soundcloud.android.service.playback.PlayQueueManager;
 import com.soundcloud.android.view.play.PlayerArtworkTrackView;
 import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.WaveformController;
 import com.soundcloud.api.ApiWrapper;
+import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import de.timroes.swipetodismiss.SwipeDismissList;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -30,7 +37,10 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformController.WaveformListener {
 
@@ -47,12 +57,18 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
     private long lastTrackTime;
     private BiMap<Long, PlayerArtworkTrackView> mVisibleViews = HashBiMap.create();
 
+    private static Map<Long, Track> mTrackCache = new HashMap<Long, Track>();
+
     private @Nullable
     CloudPlaybackService mPlaybackService;
     private long mSeekPos;
 
     protected LLQueue() {
         loadListenLaterQueue();
+    }
+
+    public synchronized static boolean hasInstance() {
+       return sInstance != null;
     }
 
     public synchronized static LLQueue get() {
@@ -70,6 +86,11 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             // Use this place to e.g. delete the item from database
             if (mCurrentPosition >= position) mCurrentPosition--;
             notifyDataSetChanged();
+
+
+
+
+
             return null;
 
             // Return an Undoable implementing every method
@@ -95,6 +116,10 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 //            };
         }
     };
+
+    public void handlePush(Intent intent) {
+        Log.i("asdf", "HANDLE PUSH " + intent);
+    }
 
     private void remoteDeletePlayqueueItem(PlayQueueItem item, int position){
 
@@ -148,7 +173,7 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 
     private PlayQueueItem getPlayQueueItemByTrackId(long id) {
         for (PlayQueueItem playQueueItem : mTracks){
-            if (playQueueItem.track.getId() == id){
+            if (playQueueItem.getId() == id){
                 return playQueueItem;
             }
         }
@@ -157,17 +182,17 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 
     @Override
     public int getCount() {
-        return mTracks.size();
+        return mTracks == null ? 0 : mTracks.size();
     }
 
     @Override
     public Track getItem(int position) {
-        return mTracks.get(position).track;
+        return mTrackCache.get(mTracks.get(position).getId());
     }
 
     @Override
     public long getItemId(int position) {
-        return mTracks.get(position).track.getId();
+        return mTracks.get(position).getId();
     }
 
     @Override
@@ -175,8 +200,8 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         if (convertView == null){
             convertView = new PlayerArtworkTrackView(this, parent.getContext(), null);
         }
-        ((PlayerTrackView) convertView).setTrack(mTracks.get(position).track, position, mTracks.get(position).progress);
-        mVisibleViews.forcePut(mTracks.get(position).track.getId(), (PlayerArtworkTrackView) convertView);
+        ((PlayerTrackView) convertView).setTrack(getItem(position), position, mTracks.get(position).progress);
+        mVisibleViews.forcePut(mTracks.get(position).getId(), (PlayerArtworkTrackView) convertView);
         return convertView;
     }
 
@@ -192,7 +217,7 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 
     @Override
     public Track getTrackAt(int position) {
-        return mTracks.size() > position ? mTracks.get(position).track : null;
+        return mTracks.size() > position ? getItem(position) : null;
     }
 
     public boolean prev() {
@@ -234,17 +259,34 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         }
     }
 
-    public void play(int position) {
-        if (position == mCurrentPosition){
-            mPlaybackService.togglePlayback();
-        } else {
-            mCurrentPosition = position;
-            final PlayQueueItem playQueueItem = mTracks.get(position);
-            if (playQueueItem.progress > 0){
-                mPlaybackService.setResumeInfo(playQueueItem.track.getId(), playQueueItem.progress);
+    public void play(final int position) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpPut httppost = new HttpPut("http://54.246.158.145/list/soundcloud:tracks:" + getTrackAt(position).getId());
+
+                try {
+                    // Execute HTTP Post Request
+                    HttpResponse response = new DefaultHttpClient().execute(httppost);
+                    Log.i("asdf","Response was " + response.getStatusLine());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            mPlaybackService.openCurrent();
-        }
+        }).start();
+
+//        if (position == mCurrentPosition){
+//            mPlaybackService.togglePlayback();
+//        } else {
+//            mCurrentPosition = position;
+//            final PlayQueueItem playQueueItem = mTracks.get(position);
+//            if (playQueueItem.progress > 0){
+//                mPlaybackService.setResumeInfo(playQueueItem.track.getId(), playQueueItem.progress);
+//            }
+//            mPlaybackService.openCurrent();
+//        }
     }
 
     public void setPlaybackService(@Nullable CloudPlaybackService mPlaybackService) {
@@ -320,7 +362,7 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         mLoader.execute();
     }
 
-    private class ListenLaterLoader extends AsyncTask<Void,Void,List<Track>>{
+    private class ListenLaterLoader extends AsyncTask<Void,Void,List<PlayQueueItem>>{
         private final ApiWrapper mWrapper;
         public ListenLaterLoader(ApiWrapper wrapper) {
             mWrapper = wrapper;
@@ -328,38 +370,79 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 
 
         @Override
-        protected List<Track> doInBackground(Void... params) {
+        protected List<PlayQueueItem> doInBackground(Void... params) {
             try {
-                HttpResponse resp = mWrapper.get(Request.to("/me/favorites.json"));
-                Type listType = new TypeToken<List<Track>>() {
+
+                HttpGet httpGet = new HttpGet("http://54.246.158.145/list");
+                // Execute HTTP Post Request
+                HttpResponse resp = new DefaultHttpClient().execute(httpGet);
+
+                Log.i("asdf","Status 1 " + resp.getStatusLine().getStatusCode());
+
+                Type listType = new TypeToken<List<PlayQueueItem>>() {
                 }.getType();
-                return new Gson().fromJson(new InputStreamReader(resp.getEntity().getContent()), listType);
+                List<PlayQueueItem> playQueueItems =  new Gson().fromJson(new InputStreamReader(resp.getEntity().getContent()), listType);
+
+                List<Long> lookups = new ArrayList<Long>(playQueueItems.size());
+                for (PlayQueueItem playQueueItem : playQueueItems){
+                    if (!mTrackCache.containsKey(playQueueItem.getId())){
+                        lookups.add(playQueueItem.getId());
+                    }
+                }
+
+                if (!lookups.isEmpty()){
+                    for (Track t : lookupTracks(lookups)){
+                        mTrackCache.put(t.getId(), t);
+                    }
+                }
+
+                Log.i("asdf","QUeue 1 " + playQueueItems);
+
+                for (Iterator<PlayQueueItem> iterator = playQueueItems.iterator(); iterator.hasNext(); ) {
+                    PlayQueueItem next = iterator.next();
+                    if (!mTrackCache.containsKey(next.getId())){
+                        iterator.remove();
+                    }
+                }
+
+                Log.i("asdf","QUeue 2 " + playQueueItems);
+
+                return playQueueItems;
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         }
 
-        @Override
-        protected void onPostExecute(List<Track> tracks) {
-            if (tracks != null){
-                mTracks = new ArrayList<PlayQueueItem>(tracks.size());
-                for (Track track : tracks){
-                    mTracks.add(new PlayQueueItem(track, 0));
-                }
-                notifyDataSetChanged();
-            }
+        private List<Track> lookupTracks(List<Long> ids) throws IOException {
+            Type listType = new TypeToken<List<Track>>() {
+            }.getType();
+            Request request = Request.to(Endpoints.TRACKS).add("ids", TextUtils.join(",", ids));
+                    //.add(Wrapper.LINKED_PARTITIONING, "1")
 
+            HttpResponse lookupResponse = mWrapper.get(request);
+            Log.i("asdf","Status 2 " + lookupResponse.getStatusLine().getStatusCode());
+            return new Gson().fromJson(new InputStreamReader(lookupResponse.getEntity().getContent()), listType);
+        }
+
+        @Override
+        protected void onPostExecute(List<PlayQueueItem> tracks) {
+            mTracks = tracks;
+            notifyDataSetChanged();
         }
     }
 
     public static class PlayQueueItem {
-        public Track track;
         public long progress;
+        public String urn;
+        private long mId;
 
-        public PlayQueueItem(Track _track, long _progress) {
-            track = _track;
-            progress = _progress;
+        public long getId(){
+            if (mId == 0){
+                mId = ClientUri.fromUri(urn).numericId;
+            }
+            return mId;
         }
     }
 }
