@@ -66,7 +66,7 @@ func SetHandler(list *List, bus *EventBus) http.HandlerFunc {
 
 		playable := list.Set(urn, finished, last, progress)
 		bus.Notify(Event{"set", *playable})
-		log.Printf("Updated `%s` on list", urn)
+		log.Printf("Set `%s` on the list", urn)
 
 		ShowHandler(playable)(w, r)
 	}
