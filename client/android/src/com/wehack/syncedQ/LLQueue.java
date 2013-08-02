@@ -1,5 +1,6 @@
 package com.wehack.syncedQ;
 
+import static com.soundcloud.android.service.playback.CloudPlaybackService.getCurrentTrackId;
 import static com.soundcloud.android.service.playback.CloudPlaybackService.getPlaylistManager;
 
 import com.google.common.collect.BiMap;
@@ -41,9 +42,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformController.WaveformListener {
 
@@ -61,6 +64,8 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
     private BiMap<Long, PlayerArtworkTrackView> mVisibleViews = HashBiMap.create();
 
     private static Map<Long, Track> mTrackCache = new HashMap<Long, Track>();
+
+    private Set<Long> pendingItems = new HashSet<Long>();
 
     private @Nullable
     CloudPlaybackService mPlaybackService;
@@ -389,15 +394,15 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 
         ClientUri uri = ClientUri.fromUri(urn);
         if (uri == null) return;
-        long id = uri.numericId;
+       final long id = uri.numericId;
 
-        if (mTracks != null) {
-            for (PlayQueueItem item : mTracks) {
-               if (item.urn.equals(urn)) {
-                   return ;
-               }
-            }
+
+        PlayQueueItem item = getPlayQueueItemByTrackId(id);
+
+        if (item != null || pendingItems.contains(id)) {
+            return;
         }
+        pendingItems.add(id);
 
         new LookupTracks(LLApplication.instance.mWrapper) {
             @Override
@@ -410,12 +415,38 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
                     PlayQueueItem item = new PlayQueueItem();
                     item.urn = urn;
 
+
                     mTracks.add(item);
+
+                    pendingItems.remove(id);
                     notifyDataSetChanged();
                 }
             }
         }.execute(Arrays.asList(id));
 
+
+    }
+
+    public void playUrn(String urn, long progress) {
+
+        int positionForUrn = getPositionForUrn(urn, progress);
+        if (positionForUrn > 0) {
+            play(positionForUrn);
+
+        }
+    }
+
+    private int getPositionForUrn(String urn, long progress) {
+        if (mTracks == null) return -1;
+        for (int i = 0; i<mTracks.size(); i++) {
+            PlayQueueItem playQueueItem = mTracks.get(i);
+            if (playQueueItem.urn.equalsIgnoreCase(urn))
+            {
+                playQueueItem.progress = progress;
+                return i;
+            }
+         }
+        return -1;
 
     }
 

@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -31,6 +32,11 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Handling of GCM messages.
@@ -92,6 +98,52 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
                 } catch (JSONException e) {
                     Log.w(TAG, e);
                 }
+            } else if(intent.hasExtra("play")) {
+
+                String play = intent.getStringExtra("play");
+                try {
+                    JSONObject obj = new JSONObject(play);
+                    String urn = obj.optString("urn");
+                    String toggleAt = obj.optString("toggle_at");
+                    long progress = obj.optInt("progress", 0);
+
+                    Log.d(TAG, "GCM play with urn:"+urn +" ,togglet_at:"+toggleAt);
+
+                    Intent playIntent = new Intent();
+
+                    queue.playUrn(urn, progress);
+
+                    if (!TextUtils.isEmpty(toggleAt)) {
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");//spec for RFC3339 (with fractional seconds)
+                        try {
+                            Date date = format.parse(toggleAt);
+
+                            Log.d(TAG, "parsed date:"+date);
+
+//                            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//                            alarmManager.set(AlarmManager.RTC_WAKEUP, date.getTime(), PendingIntent.getActivity(context, 0, playIntent, 0));
+                        } catch (ParseException e) {
+                            Log.w(TAG, e);
+                        }
+                    } else {
+
+
+
+                    }
+
+
+
+
+
+
+
+
+                } catch (JSONException e) {
+                    Log.w(TAG, e);
+                }
+
+
+
             }
         }
         setResultCode(Activity.RESULT_OK);
