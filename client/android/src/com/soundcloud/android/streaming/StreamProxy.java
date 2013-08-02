@@ -72,9 +72,14 @@ public class StreamProxy implements Runnable {
         this(context, 0);
     }
 
-    public StreamProxy(Context app, int port) {
-        storage = new StreamStorage(app, app.getExternalCacheDir());
-        loader = new StreamLoader(app, storage);
+    public StreamProxy(Context context, int port) {
+        File externalCacheDir = context.getExternalCacheDir();
+        if (externalCacheDir == null) {
+            throw new IllegalStateException("cacheDir is null");
+        }
+
+        storage = new StreamStorage(context, externalCacheDir);
+        loader = new StreamLoader(context, storage);
         mPort = port;
     }
 

@@ -334,7 +334,7 @@ public class CloudPlaybackService extends Service  {
 
             // if this comes from a shortcut, we may not have the stream url yet. we should get it on info load
             if (currentTrack != null) {
-                mMediaPlayer.setDataSource(currentTrack.getStreamUrl() + "?oauth_token=" + LLApplication.instance.TOKEN);
+                mMediaPlayer.setDataSource(mProxy.createUri(currentTrack.getStreamUrl(), null).toString());
             }
 
             mMediaPlayer.prepareAsync();
