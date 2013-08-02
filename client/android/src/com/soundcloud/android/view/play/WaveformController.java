@@ -2,6 +2,7 @@ package com.soundcloud.android.view.play;
 
 
 import com.soundcloud.android.service.playback.CloudPlaybackService;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.NowPlayingIndicator;
 import com.soundcloud.android.view.TouchLayout;
@@ -108,9 +109,12 @@ public class WaveformController extends TouchLayout {
         }
     }
 
-
-
     public void setPlaybackStatus(boolean isPlaying, long pos){
+        if (isPlaying){
+            AnimUtils.showView(getContext(), mNowPlaying, true);
+        } else {
+            AnimUtils.hideView(getContext(), mNowPlaying, true);
+        }
         setProgress(pos);
         if (!isPlaying) {
             mWaitingForSeekComplete = false;

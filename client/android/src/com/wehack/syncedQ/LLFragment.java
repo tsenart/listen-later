@@ -2,14 +2,11 @@ package com.wehack.syncedQ;
 
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.service.playback.CloudPlaybackService;
-import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 import de.timroes.swipetodismiss.SwipeDismissList;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -18,19 +15,10 @@ import android.view.View;
 import android.widget.ListView;
 
 public class LLFragment extends ListFragment {
-    SlideExpandableListAdapter mSlideExpandableListAdapter;
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        mSlideExpandableListAdapter = new SlideExpandableListAdapter(
-                getLLQueue(),
-                R.id.progress_overlay,
-                R.id.waveform_controller
-        );
-        setListAdapter(mSlideExpandableListAdapter);
-
+        setListAdapter(getLLQueue());
     }
 
     @Override
@@ -44,19 +32,6 @@ public class LLFragment extends ListFragment {
     public void onStart() {
         super.onStart();
         getActivity().bindService(new Intent(getActivity(), CloudPlaybackService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
-
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction(CloudPlaybackService.META_CHANGED);
-        getActivity().registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                final int newPosition = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, -1);
-                if (newPosition != mSlideExpandableListAdapter.getLastOpenPosition()){
-                    //mSlideExpandableListAdapter.open(newPosition);
-
-                }
-            }
-        }, filter);
     }
 
     @Override
@@ -71,8 +46,6 @@ public class LLFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        mSlideExpandableListAdapter.collapseLastOpen();
-        mSlideExpandableListAdapter.toggleExpanded(v, position);
         getLLQueue().play(position);
     }
 

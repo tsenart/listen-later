@@ -16,7 +16,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.ImageView;
 
 public class PlayerArtworkTrackView extends PlayerTrackView {
@@ -25,45 +24,25 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
     private ImageView mArtwork;
     public PlayerArtworkTrackView(LLQueue llQueue, Context context, AttributeSet attrs) {
         super(llQueue, context, attrs);
-
         mArtwork = (ImageView) findViewById(R.id.artwork);
         mArtwork.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-
-
-        showDefaultArtwork();
     }
 
     @Override
     public void setTrack(@NotNull Track track, int queuePosition, long progress) {
         super.setTrack(track, queuePosition, progress);
         updateArtwork(true);
-
     }
-
-    @Override
-    public void clear() {
-        super.clear();
-        showDefaultArtwork();
-    }
-
 
     private void updateArtwork(boolean priority) {
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;
-
-        mArtwork.setVisibility(View.GONE);
         ImageLoader.getInstance().cancelDisplayTask(mArtwork);
 
         ImageLoader.getInstance().displayImage(
                 ImageSize.formatUriForPlayer(getContext(), mTrack.getArtwork()),
                 mArtwork,
                 createPlayerDisplayImageOptions(priority));
-    }
-
-    private void showDefaultArtwork() {
-        mArtwork.setVisibility(View.GONE);
-        mArtwork.setImageDrawable(null);
     }
 
     private DisplayImageOptions createPlayerDisplayImageOptions(boolean priority){
@@ -78,13 +57,8 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
         @Override
         public Bitmap display(Bitmap bitmap, ImageView imageView, LoadedFrom loadedFrom) {
             imageView.setImageBitmap(bitmap);
-            if (mArtwork.getVisibility() != View.VISIBLE) { // keep this, presents flashing on second load
-                if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
-                    AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
-                    mArtwork.setVisibility(View.VISIBLE);
-                } else {
-                    mArtwork.setVisibility(View.VISIBLE);
-                }
+            if (loadedFrom != LoadedFrom.MEMORY_CACHE) {
+                AnimUtils.runFadeInAnimationOn(getContext(), mArtwork);
             }
             return bitmap;
         }
