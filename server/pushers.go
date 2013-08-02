@@ -2,6 +2,7 @@ package main
 
 import (
 	ws "code.google.com/p/go.net/websocket"
+	"encoding/json"
 	"fmt"
 	gcm "github.com/googollee/go-gcm"
 	"log"
@@ -36,7 +37,7 @@ func (p *GCMPusher) Notify(event Event) {
 func (p *GCMPusher) Subscribe(deviceId string) {
 	p.Lock()
 	p.deviceIds[deviceId] = struct{}{}
-	log.Printf("Subscribed `%s` to GSMPush", deviceId)
+	log.Printf("Subscribed `%s` to GCMPush", deviceId)
 	p.Unlock()
 }
 
@@ -44,17 +45,22 @@ func (p *GCMPusher) loop() {
 	for event := range p.events {
 		deviceIds := p.DeviceIds()
 		if len(deviceIds) == 0 || p.client == nil {
-			log.Printf("Bypassing GSM push: %v", event)
+			log.Printf("Bypassing GCM push: %v", event)
 			continue
 		}
 		message := gcm.NewMessage(deviceIds...)
-		message.SetPayload(event.Name, event.Payload)
-		_, err := p.client.Send(message)
+		payload, err := json.Marshal(event.Payload)
 		if err != nil {
-			log.Printf("Failed GSM push: %s", err)
+			log.Printf("Failed GCM push: %s", err)
 			continue
 		}
-		log.Printf("GSMPushed: %v to %v", event, deviceIds)
+		message.SetPayload(event.Name, string(payload))
+		_, err = p.client.Send(message)
+		if err != nil {
+			log.Printf("Failed GCM push: %s", err)
+			continue
+		}
+		log.Printf("GCMPushed: %v to %v", event, deviceIds)
 	}
 }
 

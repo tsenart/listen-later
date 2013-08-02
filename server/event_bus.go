@@ -10,8 +10,8 @@ type Subscriber interface {
 }
 
 type Event struct {
-	Name    string `json:"name"`
-	Payload string `json:"payload"`
+	Name    string      `json:"name"`
+	Payload interface{} `json:"payload"`
 }
 
 func NewEventBus(subscribers []Subscriber) *EventBus {

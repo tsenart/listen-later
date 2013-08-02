@@ -17,15 +17,15 @@ func init() {
 }
 
 func main() {
-	queue := NewQueue()
+	list := NewList()
 	gcmPusher := NewGCMPusher(*gcmKey)
 	wsPusher := NewWSPusher()
 	bus := NewEventBus([]Subscriber{gcmPusher, wsPusher})
 
 	r := pat.New()
-	r.Get("/queue", QueueHandler(queue))
-	r.Post("/enqueue/{urn}", EnqueueHandler(queue, bus))
-	r.Post("/dequeue", DequeueHandler(queue, bus))
+	r.Get("/list", ShowHandler(list))
+	r.Post("/set/{urn}", SetHandler(list, bus))
+	r.Post("/delete/{urn}", DeleteHandler(list, bus))
 	r.Handle("/subscribe/gcm", GCMSubscriptionHandler(gcmPusher))
 	r.Handle("/subscribe/ws", WSSubscriptionHandler(wsPusher))
 

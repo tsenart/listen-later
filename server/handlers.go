@@ -4,50 +4,98 @@ import (
 	ws "code.google.com/p/go.net/websocket"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
-func QueueHandler(queue *Queue) http.HandlerFunc {
+func ShowHandler(obj interface{}) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		out, _ := json.Marshal(queue)
+		out, err := json.Marshal(obj)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Content-Length", strconv.Itoa(len(out)))
 		w.Write(out)
 	}
 }
 
-func EnqueueHandler(queue *Queue, bus *EventBus) http.HandlerFunc {
+func SetHandler(list *List, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		urn := r.URL.Query().Get(":urn")
+		var urn string
+		var finished, last time.Time
+		var progress uint64
+		var err error
+
+		urn = r.URL.Query().Get(":urn")
 		if len(urn) == 0 {
-			err := errors.New("Could not enqueue empty urn.")
+			err := fmt.Errorf("Empty urn")
 			log.Println(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		if r.URL.Query().Get("finished_at") != "" {
+			finished, err = time.Parse(time.RFC3339, r.URL.Query().Get("finished_at"))
+			if err != nil {
+				log.Println(err.Error())
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		if r.URL.Query().Get("last_played_at") != "" {
+			last, err = time.Parse(time.RFC3339, r.URL.Query().Get("last_played_at"))
+			if err != nil {
+				log.Println(err.Error())
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		if r.URL.Query().Get("progress") != "" {
+			progress, err = strconv.ParseUint(r.URL.Query().Get("progress"), 10, 64)
+			if err != nil {
+				log.Println(err.Error())
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
 
-		queue.Enqueue(urn)
-		bus.Notify(Event{"enqueue", urn})
-		log.Printf("Added %s to queue %v", urn, queue)
+		playable, err := list.Set(urn, finished, last, progress)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		bus.Notify(Event{"set", playable})
+		log.Printf("Updated `%s` on list", urn)
 
-		QueueHandler(queue)(w, r)
+		ShowHandler(playable)(w, r)
 	}
 }
 
-func DequeueHandler(queue *Queue, bus *EventBus) http.HandlerFunc {
+func DeleteHandler(list *List, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if urn, err := queue.Dequeue(); err != nil {
+		urn := r.URL.Query().Get(":urn")
+		if len(urn) == 0 {
+			err := fmt.Errorf("Empty urn")
 			log.Println(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
-		} else {
-			bus.Notify(Event{"dequeue", urn})
-			log.Printf("Removed %s from queue %v", urn, queue)
 		}
+		playable, err := list.Delete(urn)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		bus.Notify(Event{"delete", playable})
+		log.Printf("Deleted `%s` from list", urn)
 
-		QueueHandler(queue)(w, r)
+		ShowHandler(playable)(w, r)
 	}
 }
 
