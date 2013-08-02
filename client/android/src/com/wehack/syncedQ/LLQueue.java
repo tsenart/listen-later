@@ -390,6 +390,15 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         ClientUri uri = ClientUri.fromUri(urn);
         if (uri == null) return;
         long id = uri.numericId;
+
+        if (mTracks != null) {
+            for (PlayQueueItem item : mTracks) {
+               if (item.urn.equals(urn)) {
+                   return ;
+               }
+            }
+        }
+
         new LookupTracks(LLApplication.instance.mWrapper) {
             @Override
             protected void onPostExecute(List<Track> tracks) {
