@@ -21,7 +21,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.jetbrains.annotations.Nullable;
 
@@ -288,33 +287,16 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
     }
 
     public void play(final int position) {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpPut httppost = new HttpPut("http://54.246.158.145/list/soundcloud:tracks:" + getTrackAt(position).getId());
-
-                try {
-                    // Execute HTTP Post Request
-                    HttpResponse response = new DefaultHttpClient().execute(httppost);
-                    Log.i("asdf","Response was " + response.getStatusLine());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        if (position == mCurrentPosition){
+            mPlaybackService.togglePlayback();
+        } else {
+            mCurrentPosition = position;
+            final PlayQueueItem playQueueItem = mTracks.get(position);
+            if (playQueueItem.progress > 0){
+                mPlaybackService.setResumeInfo(playQueueItem.getId(), playQueueItem.progress);
             }
-        }).start();
-
-//        if (position == mCurrentPosition){
-//            mPlaybackService.togglePlayback();
-//        } else {
-//            mCurrentPosition = position;
-//            final PlayQueueItem playQueueItem = mTracks.get(position);
-//            if (playQueueItem.progress > 0){
-//                mPlaybackService.setResumeInfo(playQueueItem.track.getId(), playQueueItem.progress);
-//            }
-//            mPlaybackService.openCurrent();
-//        }
+            mPlaybackService.openCurrent();
+        }
     }
 
     public void setPlaybackService(@Nullable CloudPlaybackService mPlaybackService) {
