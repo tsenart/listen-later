@@ -12,6 +12,10 @@ public class LLApplication extends Application {
 
     public static final String TOKEN = "1-2863-52909310-46110de8461fdfb1";
     public static LLApplication instance;
+    /**
+     * Substitute you own sender ID here.
+     */
+    public static String SENDER_ID = "449946394515";
     ApiWrapper mWrapper = new ApiWrapper("xce4DwrNEmNzTIcuaAjkA", "GANQKmfSMpx9FUJ7G837OQZzeBEyv7Fj3ART1WvjQA", null, null);
     @Override
     public void onCreate() {
