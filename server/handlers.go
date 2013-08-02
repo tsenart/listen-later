@@ -102,7 +102,7 @@ func PlaybackHandler(list *List, bus *EventBus) http.HandlerFunc {
 
 		bus.Notify(Event{action, *playable})
 
-		ShowHandler(action)(w, r)
+		ShowHandler(playable)(w, r)
 	}
 }
 
