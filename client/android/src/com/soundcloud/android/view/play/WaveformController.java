@@ -115,7 +115,7 @@ public class WaveformController extends TouchLayout {
         } else {
             AnimUtils.hideView(getContext(), mNowPlaying, true);
         }
-        setProgress(pos);
+        if (pos != -1) setProgress(pos);
         if (!isPlaying) {
             mWaitingForSeekComplete = false;
         }

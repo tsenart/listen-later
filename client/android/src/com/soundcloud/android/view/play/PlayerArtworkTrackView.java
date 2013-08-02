@@ -34,6 +34,10 @@ public class PlayerArtworkTrackView extends PlayerTrackView {
         updateArtwork(true);
     }
 
+    public WaveformController getWaveformController() {
+        return mWaveformController;
+    }
+
     private void updateArtwork(boolean priority) {
         // this will cause OOMs
         if (mTrack == null || ActivityManager.isUserAMonkey()) return;

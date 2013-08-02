@@ -18,7 +18,7 @@ import android.widget.TextView;
 @SuppressWarnings("deprecation")
 public class PlayerTrackView extends LinearLayout implements WaveformController.WaveformListener {
 
-    private WaveformController mWaveformController;
+    protected WaveformController mWaveformController;
     protected  @Nullable Track mTrack;
     private long mDuration;
     protected boolean mOnScreen;

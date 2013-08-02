@@ -154,13 +154,13 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             loadListenLaterQueue();
         } else if (intent.getAction().equals(CloudPlaybackService.META_CHANGED)){
             determineProgressInterval();
-
             final long longId = intent.getLongExtra(CloudPlaybackService.BroadcastExtras.id, -1L);
-            PlayerArtworkTrackView interestedView = mVisibleViews.get(longId);
-            if (interestedView != null){
-                final View viewById = interestedView.findViewById(R.id.waveform_controller);
+            PlayerArtworkTrackView playingView = mVisibleViews.get(longId);
+            for (PlayerArtworkTrackView artworkTrackView : mVisibleViews.values()){
+                if (artworkTrackView != playingView){
+                    artworkTrackView.getWaveformController().setPlaybackStatus(false, -1);
+                }
             }
-
         } else if (intent.getAction().equals(CloudPlaybackService.PLAYSTATE_CHANGED)){
             if (!intent.getBooleanExtra(CloudPlaybackService.BroadcastExtras.isPlaying, true)){
                 stopSmoothProgress();
