@@ -141,8 +141,7 @@ public abstract class AbstractSlideExpandableListAdapter extends WrapperListAdap
 		enableFor(more, itemToolbar, position);
 	}
 
-
-	private void enableFor(final View button, final View target, final int position) {
+    private void enableFor(final View button, final View target, final int position) {
 		if(target == lastOpen && position!=lastOpenPosition) {
 			// lastOpen is recycled, so its reference is false
 			lastOpen = null;
@@ -241,7 +240,11 @@ public abstract class AbstractSlideExpandableListAdapter extends WrapperListAdap
 	}
 
 
-	/**
+    public int getLastOpenPosition() {
+        return lastOpenPosition;
+    }
+
+    /**
 	 * Closes the current open item.
 	 * If it is current visible it will be closed with an animation.
 	 *

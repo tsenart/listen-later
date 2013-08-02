@@ -43,7 +43,7 @@ public class ProgressBackgroundMask extends View {
         super.onDraw(canvas);
 
         Paint p = new Paint();
-        p.setColor(0x99e36711);
+        p.setColor( progress >= 1000 ? 0x000000 : 0x99e36711);
         Rect r = new Rect();
         getDrawingRect(r);
 

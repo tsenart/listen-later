@@ -5,9 +5,11 @@ import com.soundcloud.android.service.playback.CloudPlaybackService;
 import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 import de.timroes.swipetodismiss.SwipeDismissList;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -34,7 +36,6 @@ public class LLFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         SwipeDismissList swipeDismissList = new SwipeDismissList(getListView(),
                 getLLQueue().mSwipeCallback, SwipeDismissList.UndoMode.SINGLE_UNDO);
     }
@@ -43,6 +44,19 @@ public class LLFragment extends ListFragment {
     public void onStart() {
         super.onStart();
         getActivity().bindService(new Intent(getActivity(), CloudPlaybackService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
+
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction(CloudPlaybackService.META_CHANGED);
+        getActivity().registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final int newPosition = intent.getIntExtra(CloudPlaybackService.PlayExtras.playPosition, -1);
+                if (newPosition != mSlideExpandableListAdapter.getLastOpenPosition()){
+                    //mSlideExpandableListAdapter.open(newPosition);
+
+                }
+            }
+        }, filter);
     }
 
     @Override
@@ -57,6 +71,7 @@ public class LLFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+        mSlideExpandableListAdapter.collapseLastOpen();
         mSlideExpandableListAdapter.toggleExpanded(v, position);
         getLLQueue().play(position);
     }
