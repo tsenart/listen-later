@@ -57,9 +57,16 @@ func (l *List) Delete(urn string) (Playable, error) {
 	}
 
 	playable := l.items[pos]
-	updatedItems := make([]Playable, len(l.items)-1)
-	copy(updatedItems, l.items[:pos-1])
-	copy(updatedItems[pos:], l.items[pos+1:])
+	if pos == 0 {
+		l.items = l.items[1:]
+	} else if pos == len(l.items)-1 {
+		l.items = l.items[:len(l.items)-1]
+	} else {
+		updatedItems := make([]Playable, len(l.items)-1)
+		copy(updatedItems, l.items[:pos])
+		copy(updatedItems[pos:], l.items[pos+1:])
+		l.items = updatedItems
+	}
 	delete(l.pos, urn)
 
 	return playable, nil
