@@ -19,6 +19,10 @@ func ShowHandler(obj interface{}) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		w.Header().Set("Access-Control-Max-Age", "3000")
+		w.Header().Set("Access-Control-Allow-Credentials", "false")
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Content-Length", strconv.Itoa(len(out)))
 		w.Write(out)
