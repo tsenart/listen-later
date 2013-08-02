@@ -24,8 +24,8 @@ func main() {
 
 	r := pat.New()
 	r.Get("/list", ShowHandler(list))
-	r.Post("/set/{urn}", SetHandler(list, bus))
-	r.Post("/delete/{urn}", DeleteHandler(list, bus))
+	r.Put("/list/{urn}", SetHandler(list, bus))
+	r.Delete("/list/{urn}", DeleteHandler(list, bus))
 	r.Handle("/subscribe/gcm", GCMSubscriptionHandler(gcmPusher))
 	r.Handle("/subscribe/ws", WSSubscriptionHandler(wsPusher))
 
