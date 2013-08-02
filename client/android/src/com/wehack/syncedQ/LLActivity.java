@@ -5,6 +5,8 @@ import com.soundcloud.api.Request;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -117,23 +119,18 @@ public class LLActivity extends FragmentActivity {
                     }
                     final String regid = gcm.register(LLApplication.SENDER_ID);
                     msg = "Device registered, registration id=" + regid;
-                        HttpResponse resp = LLApplication.instance.getApiWrapper().post(Request.to("/subscribe/gcm").with(
-                                "device_id", regid));
 
-                        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                            final Header location = resp.getFirstHeader("Location");
-                            if (location != null) {
-                                // Save the regid - no need to register again.
-                                setRegistrationId(LLActivity.this, regid);
-                                return location.getValue();
-                            } else {
-                                Log.w(TAG, "error registering device, location header missing");
-                                return null;
-                            }
+
+                        HttpClient client = LLApplication.instance.getApiWrapper().getHttpClient();
+                        HttpResponse response = client.execute(new HttpPost("http://54.246.158.145/subscribe/gcm?device_id="+regid));
+
+                        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                            Log.d(TAG, "registered on server");
                         } else {
-                            Log.w(TAG, "error registering device, unexpected status " + resp.getStatusLine());
-                            return null;
+                            Log.w(TAG, "error registering: "+response.getStatusLine());
                         }
+
+
 
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();

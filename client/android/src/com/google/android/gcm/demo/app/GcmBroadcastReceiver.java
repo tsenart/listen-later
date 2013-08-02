@@ -26,6 +26,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Handling of GCM messages.
@@ -47,6 +51,27 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
             sendNotification("Deleted messages on server: " + intent.getExtras().toString());
         } else {
             sendNotification("Received: " + intent.getExtras().toString());
+            // "urn":"soundcloud:sounds:125","finished_at":"0001-01-01T00:00:00Z","last_played_at":"0001-01-01T00:00:00Z","progress":0}
+
+            if (intent.hasExtra("set")) {
+                String set = intent.getStringExtra("set");
+                try {
+                    JSONObject obj = new JSONObject(set);
+                    String urn = obj.getString("urn");
+                    Log.d(TAG, "GCM set with urn:"+urn);
+                } catch (JSONException e) {
+                    Log.w(TAG, e);
+                }
+            } else if (intent.hasExtra("delete")) {
+                String delete = intent.getStringExtra("delete");
+                try {
+                    JSONObject obj = new JSONObject(delete);
+                    String urn = obj.getString("urn");
+                    Log.d(TAG, "GCM set with urn:"+urn);
+                } catch (JSONException e) {
+                    Log.w(TAG, e);
+                }
+            }
         }
         setResultCode(Activity.RESULT_OK);
     }
