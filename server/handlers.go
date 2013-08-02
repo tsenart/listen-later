@@ -80,6 +80,7 @@ func PlaybackHandler(list *List, bus *EventBus) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		action := r.URL.Query().Get(":action")
 		urn := r.URL.Query().Get(":urn")
+		toggleIn := r.URL.Query().Get("toggle_in")
 
 		playable, err := list.Find(urn)
 		if err != nil {
@@ -87,6 +88,18 @@ func PlaybackHandler(list *List, bus *EventBus) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		var duration time.Duration
+		if toggleIn != "" {
+			duration, err = time.ParseDuration(toggleIn)
+			if err != nil {
+				log.Println(err.Error())
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		playable.ToggleAt = time.Now().Add(duration)
+
 		bus.Notify(Event{action, *playable})
 
 		ShowHandler(action)(w, r)

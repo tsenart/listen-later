@@ -18,6 +18,7 @@ type Playable struct {
 	FinishedAt   time.Time `json:"finished_at"`
 	LastPlayedAt time.Time `json:"last_played_at"`
 	Progress     uint64    `json:"progress"`
+	ToggleAt     time.Time `json:"toggle_at,omitempty"`
 }
 
 func NewList() *List {
