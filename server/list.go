@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -9,8 +10,7 @@ import (
 
 type List struct {
 	sync.RWMutex
-	items []Playable
-	pos   map[string]int
+	list.List
 }
 
 type Playable struct {
@@ -21,65 +21,61 @@ type Playable struct {
 }
 
 func NewList() *List {
-	return &List{
-		items: make([]Playable, 0),
-		pos:   make(map[string]int),
-	}
+	return &List{List: list.List{}}
 }
 
-func (l *List) Set(urn string, finished, last time.Time, progress uint64) (Playable, error) {
-	l.Lock()
-	defer l.Unlock()
-	pos, ok := l.pos[urn]
-	if !ok {
-		l.items = append(l.items, Playable{Urn: urn})
-		l.pos[urn] = len(l.items) - 1
-	}
+func (l *List) Set(urn string, finished, last time.Time, progress uint64) *Playable {
+	playable := &Playable{Urn: urn}
+
 	if finished.Unix() != 0 {
-		l.items[pos].FinishedAt = finished
+		playable.FinishedAt = finished
 	}
 	if last.Unix() != 0 {
-		l.items[pos].LastPlayedAt = last
+		playable.LastPlayedAt = last
 	}
 	if progress != 0 {
-		l.items[pos].Progress = progress
+		playable.Progress = progress
 	}
-	return l.items[pos], nil
-}
 
-func (l *List) Delete(urn string) (Playable, error) {
 	l.Lock()
 	defer l.Unlock()
 
-	pos, ok := l.pos[urn]
-	if !ok {
-		return Playable{}, fmt.Errorf("`%s` not found", urn)
+	for e := l.Front(); e != nil; e = e.Next() {
+		p := e.Value.(*Playable)
+		if p.Urn == urn {
+			p.FinishedAt = playable.FinishedAt
+			p.LastPlayedAt = playable.LastPlayedAt
+			p.Progress = playable.Progress
+			return p
+		}
 	}
-
-	playable := l.items[pos]
-	if pos == 0 {
-		l.items = l.items[1:]
-	} else if pos == len(l.items)-1 {
-		l.items = l.items[:len(l.items)-1]
-	} else {
-		updatedItems := make([]Playable, len(l.items)-1)
-		copy(updatedItems, l.items[:pos])
-		copy(updatedItems[pos:], l.items[pos+1:])
-		l.items = updatedItems
-	}
-	delete(l.pos, urn)
-
-	return playable, nil
+	l.PushBack(playable)
+	return playable
 }
 
-func (l *List) Size() int {
+func (l *List) Delete(urn string) (*Playable, error) {
+	l.Lock()
+	defer l.Unlock()
+	for e := l.Front(); e != nil; e = e.Next() {
+		p := e.Value.(*Playable)
+		if urn == p.Urn {
+			l.Remove(e)
+			return p, nil
+		}
+	}
+	return &Playable{}, fmt.Errorf("`%s` not found", urn)
+}
+
+func (l *List) MarshalJSON() ([]byte, error) {
+	items := make([]*Playable, l.Len())
+	var count int
+
 	l.RLock()
-	defer l.RUnlock()
-	return len(l.items)
-}
+	for e := l.Front(); e != nil; e = e.Next() {
+		items[count] = e.Value.(*Playable)
+		count++
+	}
+	l.RUnlock()
 
-func (q *List) MarshalJSON() ([]byte, error) {
-	q.RLock()
-	defer q.RUnlock()
-	return json.Marshal(q.items)
+	return json.Marshal(items)
 }

@@ -64,13 +64,8 @@ func SetHandler(list *List, bus *EventBus) http.HandlerFunc {
 			}
 		}
 
-		playable, err := list.Set(urn, finished, last, progress)
-		if err != nil {
-			log.Println(err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		bus.Notify(Event{"set", playable})
+		playable := list.Set(urn, finished, last, progress)
+		bus.Notify(Event{"set", *playable})
 		log.Printf("Updated `%s` on list", urn)
 
 		ShowHandler(playable)(w, r)
@@ -92,7 +87,7 @@ func DeleteHandler(list *List, bus *EventBus) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		bus.Notify(Event{"delete", playable})
+		bus.Notify(Event{"delete", *playable})
 		log.Printf("Deleted `%s` from list", urn)
 
 		ShowHandler(playable)(w, r)
