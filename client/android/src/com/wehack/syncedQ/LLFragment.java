@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ListFragment;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ListView;
 
 public class LLFragment extends ListFragment {
@@ -37,12 +36,7 @@ public class LLFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
 
         SwipeDismissList swipeDismissList = new SwipeDismissList(getListView(),
-                new SwipeDismissList.OnDismissCallback() {
-                    @Override
-                    public SwipeDismissList.Undoable onDismiss(AbsListView listView, int position) {
-                        return null;
-                    }
-                }, SwipeDismissList.UndoMode.SINGLE_UNDO);
+                getLLQueue().mSwipeCallback, SwipeDismissList.UndoMode.SINGLE_UNDO);
     }
 
     @Override

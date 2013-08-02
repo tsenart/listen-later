@@ -13,6 +13,7 @@ import com.soundcloud.android.view.play.PlayerTrackView;
 import com.soundcloud.android.view.play.WaveformController;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Request;
+import de.timroes.swipetodismiss.SwipeDismissList;
 import org.apache.http.HttpResponse;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 
 import java.io.IOException;
@@ -58,6 +60,44 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             sInstance = new LLQueue();
         }
         return sInstance;
+    }
+
+    public SwipeDismissList.OnDismissCallback mSwipeCallback = new SwipeDismissList.OnDismissCallback() {
+        // Gets called whenever the user deletes an item.
+        public SwipeDismissList.Undoable onDismiss(AbsListView listView, final int position) {
+            // Get your item from the adapter (mAdapter being an adapter for MyItem objects)
+            final PlayQueueItem playQueueItem = mTracks.remove(position);
+            // Use this place to e.g. delete the item from database
+            if (mCurrentPosition >= position) mCurrentPosition--;
+            notifyDataSetChanged();
+            return null;
+
+            // Return an Undoable implementing every method
+//            return new SwipeDismissList.Undoable() {
+//
+//                // Method is called when user undoes this deletion
+//                public void undo() {
+//                    mTracks.add(position, playQueueItem);
+//                    if (mCurrentPosition >= position) mCurrentPosition++;
+//                    notifyDataSetChanged();
+//                }
+//
+//                // Return an undo message for that item
+//                public String getTitle() {
+//                    return playQueueItem.track.getTitle() + " deleted";
+//                }
+//
+//                // Called when user cannot undo the action anymore
+//                public void discard() {
+//
+//
+//                }
+//            };
+        }
+    };
+
+    private void remoteDeletePlayqueueItem(PlayQueueItem item, int position){
+
     }
 
     public  final void onPlaybackServiceChanged(Intent intent){
@@ -272,11 +312,6 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             mHandler.removeCallbacks(mSmoothProgress);
         }
     }
-
-
-
-
-
 
 
 
