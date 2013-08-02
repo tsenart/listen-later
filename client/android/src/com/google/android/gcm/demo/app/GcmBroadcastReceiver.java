@@ -29,6 +29,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -53,25 +54,41 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
             sendNotification("Received: " + intent.getExtras().toString());
             // "urn":"soundcloud:sounds:125","finished_at":"0001-01-01T00:00:00Z","last_played_at":"0001-01-01T00:00:00Z","progress":0}
 
-            if (LLQueue.hasInstance()){
-                LLQueue.get().loadListenLaterQueue();
-            }
+
+            LLQueue queue = LLQueue.get();
+            if (queue == null) return;
+
+            //queue.loadListenLaterQueue();
 
             if (intent.hasExtra("set")) {
                 String set = intent.getStringExtra("set");
                 try {
                     JSONObject obj = new JSONObject(set);
-                    String urn = obj.getString("urn");
+                    String urn = obj.optString("urn");
                     Log.d(TAG, "GCM set with urn:"+urn);
+
+
+                    if (!TextUtils.isEmpty(urn)) {
+                        queue.addUrn(urn);
+                    }
                 } catch (JSONException e) {
                     Log.w(TAG, e);
                 }
+
+
+
+
             } else if (intent.hasExtra("delete")) {
                 String delete = intent.getStringExtra("delete");
                 try {
                     JSONObject obj = new JSONObject(delete);
-                    String urn = obj.getString("urn");
+                    String urn = obj.optString("urn");
                     Log.d(TAG, "GCM set with urn:"+urn);
+
+                    if (!TextUtils.isEmpty(urn)) {
+                        queue.removeUrn(urn);
+                    }
+
                 } catch (JSONException e) {
                     Log.w(TAG, e);
                 }

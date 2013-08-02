@@ -16,6 +16,7 @@ import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -48,10 +49,12 @@ public class LLActivity extends FragmentActivity {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         gcm = GoogleCloudMessaging.getInstance(this);
-        if (getRegistrationId(getApplicationContext()).length() == 0) {
+        String registrationId = getRegistrationId(getApplicationContext());
+        if (!TextUtils.isEmpty(registrationId)) {
+            subscribeBackground(registrationId);
+        } else {
             registerBackground();
         }
-
     }
 
     /**
@@ -112,38 +115,51 @@ public class LLActivity extends FragmentActivity {
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
-                String msg = "";
                 try {
                     if (gcm == null) {
+
+                        Log.d(TAG, "registering for GCM");
                         gcm = GoogleCloudMessaging.getInstance(LLActivity.this);
                     }
-                    final String regid = gcm.register(LLApplication.SENDER_ID);
-                    msg = "Device registered, registration id=" + regid;
-
-
-                        HttpClient client = LLApplication.instance.getApiWrapper().getHttpClient();
-                        HttpResponse response = client.execute(new HttpPost("http://54.246.158.145/subscribe/gcm?device_id="+regid));
-
-                        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                            Log.d(TAG, "registered on server");
-                        } else {
-                            Log.w(TAG, "error registering: "+response.getStatusLine());
-                        }
-
-
-
+                    return gcm.register(LLApplication.SENDER_ID);
                 } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
+                    Log.w(TAG, ex);
                 }
-                return msg;
+                return null;
             }
 
             @Override
-            protected void onPostExecute(String msg) {
-                Log.i(TAG, msg + "\n");
-
+            protected void onPostExecute(String id) {
+                if (id != null) {
+                    Log.d(TAG, "successfully registered for GCM");
+                    setRegistrationId(LLActivity.this, id);
+                    subscribeBackground(id);
+                }
             }
         }.execute(null, null, null);
+    }
+
+    private void subscribeBackground(final String regId) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                HttpClient client = LLApplication.instance.getApiWrapper().getHttpClient();
+                HttpResponse response = null;
+                try {
+                    Log.d(TAG, "subscribing on queue server");
+                    response = client.execute(new HttpPost("http://54.246.158.145/subscribe/gcm?device_id="+regId));
+                    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                        Log.d(TAG, "subscribed on server");
+                    } else {
+                        Log.w(TAG, "error subscribing: "+response.getStatusLine());
+                    }
+                } catch (IOException e) {
+                    Log.w(TAG, e);
+                }
+                return null;
+            }
+        }.execute();
     }
 
     @Override

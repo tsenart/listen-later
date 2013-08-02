@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -223,8 +224,12 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         if (convertView == null){
             convertView = new PlayerArtworkTrackView(this, parent.getContext(), null);
         }
-        ((PlayerTrackView) convertView).setTrack(getItem(position), position, mTracks.get(position).progress);
-        mVisibleViews.forcePut(mTracks.get(position).getId(), (PlayerArtworkTrackView) convertView);
+        Track track = getItem(position);
+
+        if (track != null) {
+            ((PlayerTrackView) convertView).setTrack(track, position, mTracks.get(position).progress);
+            mVisibleViews.forcePut(mTracks.get(position).getId(), (PlayerArtworkTrackView) convertView);
+        }
         return convertView;
     }
 
@@ -385,6 +390,43 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
         mLoader.execute();
     }
 
+    public void removeUrn(String urn) {
+        if (mTracks == null) return;
+
+        for (Iterator<PlayQueueItem> iterator = mTracks.iterator(); iterator.hasNext(); ) {
+            PlayQueueItem item = iterator.next();
+            if (item.urn.equalsIgnoreCase(urn)) {
+                iterator.remove();
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+    public void addUrn(final String urn) {
+
+        ClientUri uri = ClientUri.fromUri(urn);
+        if (uri == null) return;
+        long id = uri.numericId;
+        new LookupTracks(LLApplication.instance.mWrapper) {
+            @Override
+            protected void onPostExecute(List<Track> tracks) {
+                if (tracks != null) {
+                    for (Track t : tracks) {
+                        mTrackCache.put(t.getId(), t);
+                    }
+
+                    PlayQueueItem item = new PlayQueueItem();
+                    item.urn = urn;
+
+                    mTracks.add(item);
+                    notifyDataSetChanged();
+                }
+            }
+        }.execute(Arrays.asList(id));
+
+
+    }
+
     private class ListenLaterLoader extends AsyncTask<Void,Void,List<PlayQueueItem>>{
         private final ApiWrapper mWrapper;
         public ListenLaterLoader(ApiWrapper wrapper) {
@@ -394,6 +436,9 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
 
         @Override
         protected List<PlayQueueItem> doInBackground(Void... params) {
+
+            Log.d("asdf", "loading queue");
+
             try {
 
                 HttpGet httpGet = new HttpGet("http://54.246.158.145/list");
@@ -414,7 +459,7 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
                 }
 
                 if (!lookups.isEmpty()){
-                    for (Track t : lookupTracks(lookups)){
+                    for (Track t : lookupTracks(mWrapper, lookups)){
                         mTrackCache.put(t.getId(), t);
                     }
                 }
@@ -438,23 +483,43 @@ public class LLQueue extends BaseAdapter implements PlayQueueManager, WaveformCo
             return null;
         }
 
-        private List<Track> lookupTracks(List<Long> ids) throws IOException {
-            Type listType = new TypeToken<List<Track>>() {
-            }.getType();
-            Request request = Request.to(Endpoints.TRACKS).add("ids", TextUtils.join(",", ids));
-                    //.add(Wrapper.LINKED_PARTITIONING, "1")
-
-            HttpResponse lookupResponse = mWrapper.get(request);
-            Log.i("asdf","Status 2 " + lookupResponse.getStatusLine().getStatusCode());
-            return new Gson().fromJson(new InputStreamReader(lookupResponse.getEntity().getContent()), listType);
-        }
-
         @Override
         protected void onPostExecute(List<PlayQueueItem> tracks) {
             mTracks = tracks;
             notifyDataSetChanged();
         }
     }
+
+    private class LookupTracks extends AsyncTask<List<Long>, Void, List<Track>> {
+
+        private final ApiWrapper mWrapper;
+        public LookupTracks(ApiWrapper wrapper) {
+            mWrapper = wrapper;
+        }
+
+        @Override
+        protected List<Track> doInBackground(List<Long>... lists) {
+            try {
+                return lookupTracks(mWrapper, lists[0]);
+            } catch (IOException e) {
+                Log.w("", e);
+                return null;
+            }
+        }
+    }
+
+
+    private List<Track> lookupTracks(ApiWrapper wrapper, List<Long> ids) throws IOException {
+        Type listType = new TypeToken<List<Track>>() {
+        }.getType();
+        Request request = Request.to(Endpoints.TRACKS).add("ids", TextUtils.join(",", ids));
+        //.add(Wrapper.LINKED_PARTITIONING, "1")
+
+        HttpResponse lookupResponse = wrapper.get(request);
+        Log.i("asdf","Status 2 " + lookupResponse.getStatusLine().getStatusCode());
+        return new Gson().fromJson(new InputStreamReader(lookupResponse.getEntity().getContent()), listType);
+    }
+
 
     public static class PlayQueueItem {
         public long progress;
