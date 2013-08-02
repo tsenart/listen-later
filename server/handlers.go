@@ -107,6 +107,17 @@ func PlaybackHandler(list *List, bus *EventBus) http.HandlerFunc {
 		}
 		playable.ToggleAt = time.Now().Add(duration)
 
+		var progress uint64
+		if r.URL.Query().Get("progress") != "" {
+			progress, err = strconv.ParseUint(r.URL.Query().Get("progress"), 10, 64)
+			if err != nil {
+				log.Println(err.Error())
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			playable.Progress = progress
+		}
+
 		bus.Notify(Event{action, *playable})
 
 		ShowHandler(playable)(w, r)
